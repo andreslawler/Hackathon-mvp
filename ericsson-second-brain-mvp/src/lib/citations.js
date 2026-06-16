@@ -76,3 +76,33 @@ export function parseAssessmentJson(raw) {
     return null;
   }
 }
+
+// Count grounded citations from the SAME preprocessed markdown that gets rendered, so the number
+// can never diverge from the displayed pills. Each cite:// link is validated against the loaded
+// manifest (idx). Only links whose filename is in idx are counted as grounded. Invalid or unknown
+// citations are excluded, which keeps the number honest. Returns { valid, reasoning, data }.
+export function countGroundedFromMarkdown(md, idx) {
+  const map = idx || {};
+  let valid = 0;
+  let reasoning = 0;
+  let data = 0;
+  const re = /\(cite:\/\/([^)\s]+)\)/g;
+  let m;
+  while ((m = re.exec(String(md || ''))) !== null) {
+    let file = m[1];
+    try {
+      file = decodeURIComponent(file);
+    } catch {
+      /* keep raw filename */
+    }
+    const type = map[file.trim()];
+    if (type === 'reasoning') {
+      valid += 1;
+      reasoning += 1;
+    } else if (type === 'data') {
+      valid += 1;
+      data += 1;
+    }
+  }
+  return { valid, reasoning, data };
+}

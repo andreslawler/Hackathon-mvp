@@ -1,6 +1,6 @@
 # Ericsson's Second Brain — MVP Functional Specification
 
-**Status:** Draft v1.0
+**Status:** v2.0 (updated to reflect the implemented MVP)
 **Author:** Andres Lawler
 **Purpose:** Hackathon MVP for demonstrating the Second Brain concept to a senior judging panel.
 **Audience:** Senior strategy and commercial leadership.
@@ -17,11 +17,13 @@ The single thesis the MVP demonstrates is:
 
 > The advantage in AI-first commercial operations does not come from the model, nor from a data lake. It comes from capturing how Ericsson reasons commercially, and how each major customer actually behaves, in a form an AI can use. The companies that do this will arrive at the AI-first future with an edge. The companies that do not will run generic agents that are, in their CEO's words, *almost right* — which for a mission-critical deal is not good enough.
 
+The worked example throughout is the **Integrated Core Solution (ICS)**, a cloud-native dual-mode 4G/5G core for the Mission Critical Networks (MCN) segment, sold to a leading GCC operator. The customer is never named.
+
 ---
 
 ## 2. Architectural overview
 
-A local React application running on the user's laptop, calling the Anthropic API directly. The application loads markdown skill files and knowledgebase documents at runtime from the local filesystem and composes them into Claude system prompts.
+A local React application running on the user's laptop. It loads markdown skill files and knowledgebase documents at runtime from the local filesystem, composes them into system prompts, and calls an LLM endpoint. The same architecture runs against any OpenAI-compatible endpoint.
 
 ### High-level architecture
 
@@ -40,142 +42,99 @@ A local React application running on the user's laptop, calling the Anthropic AP
 │                       └──────────────────────────────────┘      │
 │                                       │                         │
 └───────────────────────────────────────┼─────────────────────────┘
-                                        │
+                                        │  (Vite dev-server proxy: /mimir)
                                         ▼
                             ┌───────────────────────┐
-                            │  Anthropic API        │
-                            │  (claude-sonnet-4-5)  │
+                            │  Mimir LLM endpoint   │
+                            │  (GPT-5.4, internal)  │
                             └───────────────────────┘
 ```
 
-### Two parallel calls per scenario
+### LLM endpoint
 
-For each scenario the user runs, the app makes **two parallel streaming calls to the Anthropic API**:
+The app calls the internal Ericsson **Mimir** endpoint, a GPT-5.4 proxy, through a Vite dev-server proxy at `/mimir` (configured in `vite.config.js`). The proxy clears browser CORS and lets the dev machine reach the internal endpoint, so the app must run on the Ericsson corporate network. Authentication is a bearer token the user pastes into the app. It is held in `sessionStorage` only, cleared on tab close, and expires after about an hour. The model and endpoint are configurable in `src/lib/api.js`. The architecture is endpoint-agnostic: any OpenAI-style chat endpoint can be swapped in.
+
+### Calls per scenario run
+
+For each scenario the user runs, the app makes **two parallel generation calls**, then one or two **additive** calls layered on top:
 
 | Call | System prompt content | Purpose |
 |------|----------------------|---------|
-| **Generic** | Generic public Ericsson description + generic public customer description | A fair baseline for what a generic LLM with minimal company-wide RAG would produce |
-| **Second Brain** | All applicable role skills + customer skill + all use-case-specific knowledgebase documents | The Second Brain output, reasoning with full Ericsson institutional context |
+| **Generic** | Generic public Ericsson description + generic public customer description | A fair baseline for what a generic LLM with minimal public RAG would produce |
+| **Second Brain** | All applicable role skills + customer skills + the use-case knowledgebase | The Second Brain output, reasoning with full institutional context |
+| **Assessment** (additive) | Both outputs + a fixed six-item rubric + the Commercial Director skill | Scores both outputs and writes a Commercial Director review of the generic one (Features 2 and 3 below) |
+| **Offer data** (additive, UC1 only) | The Second Brain output | Structures the quotation into data for the send-ready document downloads |
 
-Both calls receive the **same scenario** as the user message. Same model, same temperature, same max tokens. The only variable is the system prompt.
+Both generation calls receive the **same scenario** as the user message. Same model, same parameters. The only variable is the system prompt. This is critical for credibility: the comparison is fair on every dimension except the loaded knowledge.
 
-This is critical for credibility: the comparison is genuinely fair on every dimension except the loaded knowledge.
+The two additive calls fire only after both generations complete, and only when both produced text. They are strictly additive: if either fails or returns unparseable output, the two generation outputs still render normally and the additive feature shows a quiet unavailable state. The demo cannot be taken down by the additive layer.
 
 ### File-based architecture
 
-All skills and knowledgebase documents are **real markdown files** in `/public/skills/`, `/public/knowledgebase/`, and `/public/generic-rag/`. The app fetches them at runtime, so:
+All skills and knowledgebase documents are **real markdown files** under `/public/skills/`, `/public/knowledgebase/`, and `/public/generic-rag/`, fetched fresh at runtime. So:
 
-- A judge can click any file in the inputs panel and view its raw content
-- A judge can be shown the actual file structure in VS Code or Finder during the demo
-- The user (Andres) can replace any placeholder file with real Ericsson content by simply overwriting it — no rebuild, no code change
+- A judge can click any file in the inputs panel and read its raw content.
+- A judge can be shown the actual file structure in VS Code during the demo.
+- The user can replace any file by overwriting it. The change shows on the next Run, with no rebuild.
 
-There is no hidden state. What's loaded is what's visible.
+There is no hidden state. What is loaded is what is visible.
 
 ---
 
 ## 3. Use cases
 
-The MVP includes three use cases, presented with equal emphasis. Each demonstrates the Second Brain concept in a different commercial workflow.
+Three use cases, presented with equal emphasis, mapped to the sales journey: **Quotation, Negotiation, Contracting**. All three are built around the Integrated Core Solution for a leading GCC operator.
 
-### Use Case 1 — Budgetary Quotation Generation
+### Use Case 1 — Budgetary Quotation (Quotation)
 
-**Goal:** Generate an indicative, non-binding budgetary quotation package for a customer requirement.
+**Goal:** Generate an indicative, non-binding budgetary quotation package for the ICS.
 
 **Output (Second Brain version):**
-1. **Pricing schedule** — line-item indicative pricing, structured commercial construct (rebates, multi-year terms, indexation, software attach) rather than flat list-price.
-2. **Solution description** — high-level technical description tied to the customer's stated needs and known installed base.
-3. **Statement of Compliance** — point-by-point response to the customer's stated requirements, with confidence indicators.
+1. **Pricing schedule:** line-item indicative pricing in ranges, with a structured commercial construct (multi-year framework, software attach, capacity tiers, milestone rebate) rather than a flat list-price discount.
+2. **Solution description:** high-level technical description tied to the stated requirement and the ICS component set.
+3. **Statement of compliance:** point-by-point response to the stated requirements with compliance status.
 
-**Output (Generic version):** A best-effort quotation produced from the generic LLM with only public Ericsson and customer descriptions in context. Expected to be substantially less specific, less commercially sophisticated, and missing reuse of patterns from prior deals.
+**Send-ready documents (Second Brain side only).** After the quotation generates, the user can download three customer-ready files: a **Solution Description** as a Word document filled from the real Ericsson ICS template, and a **Pricing schedule** and **Statement of Compliance** as spreadsheets, all generated client-side from a structured-data pass over the Second Brain output. A markdown fallback is offered if generation fails.
 
-**Inputs into the Second Brain prompt:**
+**RFQ drop-zone (Path 2).** UC1 also accepts an uploaded customer RFQ. A dropped document replaces the built-in `rfi-sample.md` in the Second Brain context, so a real customer request drives the output. With no upload (Path 1), the built-in RFI sample is used.
 
-| Source | File path |
-|--------|-----------|
-| Solution Architect skill | `/public/skills/sa-solution-architect.md` |
-| Account Manager skill | `/public/skills/am-account-manager.md` |
-| Commercial Director skill | `/public/skills/cd-commercial-director.md` |
-| Customer skill (GCC operator) | `/public/skills/customer-gcc-operator.md` |
-| Customer RFI extract | `/public/knowledgebase/commercial-artifacts/rfi-sample.md` |
-| Offer template (Bid Office) | `/public/knowledgebase/commercial-artifacts/offer-template.md` |
-| Premium Proposal — prior deals | `/public/knowledgebase/commercial-artifacts/premium-proposal-prior-deals.md` |
-| Salesforce deal history | `/public/knowledgebase/commercial-artifacts/salesforce-deal-history.md` |
-| Product catalog extract | `/public/knowledgebase/commercial-artifacts/product-catalog-extract.md` |
-| Won/Loss + KAM debrief library | `/public/knowledgebase/won-loss-debriefs/` (all files) |
+**Output (Generic version):** a best-effort quotation from public information only. Expected to be less specific, less commercially sophisticated, and without reuse of prior-deal patterns.
 
-**Inputs into the Generic prompt:**
+**Inputs into the Second Brain prompt:** SA, AM, CD, and customer (GCC operator) skills, plus the knowledgebase set: the ICS solution brief, the RFI sample (or the uploaded RFQ), the offer template, the Statement of Work template, the quotation output templates, the Premium Proposal prior deals, the Salesforce deal history, the product catalogue, Nokia competitive intelligence, the three active deals, and the won/loss debrief.
 
-| Source | File path |
-|--------|-----------|
-| Public Ericsson description | `/public/generic-rag/ericsson-public-overview.md` |
-| Public customer description | `/public/generic-rag/customer-public-overview.md` |
-
-**Fixed scenario:** A leading GCC mobile operator has issued an RFI for a multi-site MCN expansion across UAE deployment, requesting an indicative budgetary quote within seven working days.
+**Fixed scenario:** A leading GCC operator, acting as prime for a national mission-critical end customer, has issued an RFI for an Integrated Core Solution, a dedicated private 4G/5G dual-mode core, requesting an indicative budgetary quotation within seven working days. Geo-redundant across two sites, dimensioned for roughly 20,000 users, about 5,000 voice users, and at least 40 Gbps core throughput.
 
 ---
 
-### Use Case 2 — Negotiation Advisor
+### Use Case 2 — Negotiation Advisor (Negotiation)
 
-**Goal:** Advise on how to handle a specific negotiation scenario, drawing on multiple role perspectives and the customer's known commercial behaviour.
+**Goal:** Advise on a specific negotiation scenario, drawing on multiple role perspectives and the customer's known commercial behaviour.
 
-**Output (Second Brain version):**
-1. **Customer pattern recognition** — what the customer is doing here, based on observed prior behaviour.
-2. **Recommended wanted position** — Ericsson's opening response, framed commercially not just on price.
-3. **Likely counter-moves** — what the customer is likely to do at each round, with two or three contingency responses.
-4. **Trade-space** — what Ericsson is genuinely willing to move on and what is off the table.
-5. **Recommendation on form** — who should respond, in what channel, with what timing.
+**Output (Second Brain version):** customer pattern recognition, recommended wanted position, likely counter-moves three rounds out, trade-space, and recommendation on form.
 
-**Output (Generic version):** Standard negotiation advice from the generic LLM. Expected to be procedurally sensible but tactically generic — missing the specific customer pattern, group-framework risk, and Ericsson-specific commercial constructs.
+**Output (Generic version):** procedurally sensible but tactically generic. Misses the specific customer pattern, group-framework risk, and Ericsson commercial constructs.
 
-**Inputs into the Second Brain prompt:**
+**Inputs into the Second Brain prompt:** CD, AM, SA, and customer (GCC operator) skills, plus the ICS solution brief, customer public financials, installed base and org map, vendor landscape, Nokia and Huawei competitive intelligence, the three active deals, and the won/loss debrief.
 
-| Source | File path |
-|--------|-----------|
-| Commercial Director skill | `/public/skills/cd-commercial-director.md` |
-| Account Manager skill | `/public/skills/am-account-manager.md` |
-| Solution Architect skill | `/public/skills/sa-solution-architect.md` |
-| Customer skill (GCC operator) | `/public/skills/customer-gcc-operator.md` |
-| Customer public financials | `/public/knowledgebase/customer-intelligence/customer-public-financials.md` |
-| Customer installed base & internal context | `/public/knowledgebase/customer-intelligence/customer-installed-base.md` |
-| Customer vendor landscape & switching costs | `/public/knowledgebase/customer-intelligence/customer-vendor-landscape.md` |
-| Won/Loss + KAM debrief library | `/public/knowledgebase/won-loss-debriefs/` (all files) |
-
-**Inputs into the Generic prompt:** Same two generic overviews as UC1.
-
-**Fixed scenario:** *"A leading GCC operator has requested a 10% list-price reduction on a $50M MCN expansion deal, citing Nokia competitive pressure. They want to close before Q4. How should we respond?"*
+**Fixed scenario:** A leading GCC operator has requested a 10% list-price reduction on a roughly USD 6M Integrated Core Solution deal for its Mission Critical Networks segment, citing Nokia competitive pressure, and wants to close before Q4.
 
 ---
 
-### Use Case 3 — BCTC Contract Negotiation Advisor
+### Use Case 3 — Contracting
 
-**Goal:** Assess deviations of a specific customer contract from Ericsson's wanted position on Business-Critical Terms & Conditions (BCTCs), and recommend a negotiation strategy.
+(Named "Contracting" in the UI to fit the sales journey. The underlying task is a Business-Critical Terms and Conditions deviation assessment.)
 
-**Output (Second Brain version):**
-1. **Deviation table** — for each BCTC in the contract, compare to wanted position. Flag deviations with severity: red, amber, green.
-2. **Risk analysis** — for red and amber deviations, explain the commercial and legal exposure created.
-3. **Negotiation priorities** — which deviations to push back on hardest, which to trade, which to accept. Tied to the customer's known posture.
-4. **Suggested redlines** — for the top three priorities, draft replacement language aligned to Ericsson wanted position.
+**Goal:** Assess a returned framework agreement against Ericsson's wanted positions on Business-Critical Terms, and recommend a negotiation strategy.
 
-**Output (Generic version):** Generic contract-review observations. Expected to identify clauses but lack BCTC-specific Ericsson context, customer-specific patterns, or strategic prioritisation.
+**Output (Second Brain version):** a deviation table (BCTC, customer position, Ericsson wanted, severity red/amber/green, note), risk analysis for the red and amber deviations, ranked negotiation priorities, and suggested redlines for the top three.
 
-**Inputs into the Second Brain prompt:**
+**Output (Generic version):** generic contract-review observations. Identifies clauses but lacks the BCTC-specific wanted positions, the customer pattern, and strategic prioritisation.
 
-| Source | File path |
-|--------|-----------|
-| Contract Manager skill | `/public/skills/cm-contract-manager.md` |
-| Legal Counsel skill | `/public/skills/legal-counsel.md` |
-| Commercial Director skill | `/public/skills/cd-commercial-director.md` |
-| Customer contract expert skill | `/public/skills/customer-contract-expert.md` |
-| Customer skill (GCC operator) | `/public/skills/customer-gcc-operator.md` |
-| BCTC catalogue with wanted positions | `/public/knowledgebase/contract-artifacts/bctc-catalogue.md` |
-| Customer's prior contract history with Ericsson | `/public/knowledgebase/customer-intelligence/customer-contract-history.md` |
-| Customer public financials | `/public/knowledgebase/customer-intelligence/customer-public-financials.md` |
-| Customer vendor landscape | `/public/knowledgebase/customer-intelligence/customer-vendor-landscape.md` |
-| Won/Loss + KAM debrief library | `/public/knowledgebase/won-loss-debriefs/` (all files) |
+**Inputs into the Second Brain prompt:** Contract Manager, Legal Counsel, Commercial Director, customer contract function, and customer (GCC operator) skills, plus the BCTC catalogue with wanted positions, the customer contract history, public financials, vendor landscape, the three active deals, and the won/loss debrief.
 
-**Inputs into the Generic prompt:** Same two generic overviews as UC1 and UC2.
+**Fixed scenario:** The customer has returned the framework agreement with deviations on Business-Critical Terms. Assess each against Ericsson's wanted position, prioritise, and recommend a strategy with redlines. (The live scenario text is to be finalised from the real customer deviations against the 28-term BCTC catalogue.)
 
-**Fixed scenario:** The customer has returned the framework agreement with deviations on liability cap, IP indemnity, termination for convenience, and 3PP cost pass-through. Assess against Ericsson's wanted position and recommend a negotiation strategy.
+**Inputs into the Generic prompt (all three use cases):** the two generic public overviews only.
 
 ---
 
@@ -183,81 +142,48 @@ The MVP includes three use cases, presented with equal emphasis. Each demonstrat
 
 ### 4.1 Application shell
 
-A single React app with a top-level navigation bar showing the three use cases plus a Home screen. The user clicks between them.
-
-Top-of-screen elements (persistent across screens):
-- Application title: "Ericsson's Second Brain — MVP"
-- Use case tabs: Home · UC1 Quotation · UC2 Negotiation · UC3 BCTC
-- API key status indicator (configured / not configured) with a settings affordance to set/clear it
+A single React app with a top navigation bar. Persistent elements:
+- Application title: "Ericsson's Second Brain"
+- Tabs: Home, UC1 Quotation, UC2 Negotiation, UC3 Contracting
+- A token status indicator (set / not set) with an affordance to set or change the Mimir token
 
 ### 4.2 Home screen
 
-Brief framing of the Second Brain thesis, the three use cases as cards, and an entry point into each. Acts as orientation for the panel.
+Frames the thesis, presents the three use cases as cards, and links into each.
 
 ### 4.3 Use case screen layout
 
-All three use case screens share the same three-region layout:
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  USE CASE 2 — NEGOTIATION ADVISOR                               │
-├──────────────────┬──────────────────────────────────────────────┤
-│  INPUTS          │  SCENARIO                                    │
-│                  │  ┌─────────────────────────────────────────┐ │
-│  SKILLS LOADED   │  │ A leading GCC operator has requested... │ │
-│  • cd skill      │  │                                         │ │
-│  • am skill      │  └─────────────────────────────────────────┘ │
-│  • sa skill      │  [ Run scenario ]                            │
-│  • customer      ├──────────────────────────────────────────────┤
-│                  │  OUTPUTS                                     │
-│  KNOWLEDGEBASE   │  ┌─────────────────┬──────────────────────┐  │
-│  • financials    │  │ Generic LLM     │ Second Brain         │  │
-│  • installed     │  │ + public RAG    │ + skills + KB        │  │
-│  • vendor lscape │  │                 │                      │  │
-│  • debriefs (3)  │  │ (streaming...)  │ (streaming...)       │  │
-│                  │  │                 │                      │  │
-│  Click any file  │  │                 │                      │  │
-│  to view         │  │                 │                      │  │
-│                  │  └─────────────────┴──────────────────────┘  │
-└──────────────────┴──────────────────────────────────────────────┘
-```
+The three use case screens share a layout: a collapsible inputs panel on the left, and a run area on the right holding the scenario box, the RFQ drop-zone (UC1 only), the Run control, and the dual output.
 
 ### 4.4 Inputs panel
 
-Lists the actual files being loaded for this use case, grouped:
-- **Skills loaded** (e.g. CD, AM, SA, customer skill)
-- **Knowledgebase** (the use-case-specific documents and the won/loss debriefs)
-
-Each file in the list is **clickable**. Clicking opens a modal or side-drawer that displays the file's raw markdown content. This is essential: it lets the judge verify the files are real, see what content drives the AI's reasoning, and grasp the architecture in seconds.
-
-The inputs panel for the Generic side is also shown, much shorter:
-- Generic public Ericsson description
-- Generic public customer description
+Lists the actual files loaded for the use case, grouped into skills and knowledgebase, each clickable to open a viewer showing the raw markdown. The generic side is also listed, short: the two public overviews. The panel is collapsible to give the output more room. On UC1, when an RFQ has been uploaded, the panel reflects that the uploaded document is in use.
 
 ### 4.5 Scenario box
 
-For each use case, a fixed scenario is preloaded (per the spec above). The text is displayed in a styled box but is **read-only** in the MVP — no editing. This avoids any live-input variance that could derail the demo.
+A fixed, read-only scenario per use case, to avoid live-input variance during the demo.
 
 ### 4.6 Dual output panel
 
-Two columns of equal width, side by side. Header above each column makes clear which is which:
+Two equal columns. Left: "Generic LLM + public RAG" in the muted accent. Right: "Second Brain" in the primary green. Output currently renders non-streaming: a "Generating" indicator shows while each call runs, then the full answer renders. Streaming is implemented behind a flag and can be enabled once the endpoint's streaming format is confirmed.
 
-- **Left column:** "Generic LLM + public RAG" (in a muted accent colour)
-- **Right column:** "Second Brain — skills + knowledgebase" (in the project's primary green accent)
+### 4.7 The legibility layer (what makes the delta defensible)
 
-Both columns stream from the Anthropic API in parallel. While streaming, a blinking cursor indicates progress.
+Three features, all computed live from the real outputs on each run. No hardcoded verdicts.
 
-A loading indicator above each column shows which skills/files are loading and being composed into context for that side.
+- **Citation pills (Second Brain output only).** As it writes, the Second Brain model wraps grounded claims in inline markers naming the source file. The app renders these as subtle pills: green for a claim drawn from a role skill (reasoning), deep blue for a claim drawn from a knowledgebase artifact (data). General prose stays unmarked. A cited filename that is not actually loaded renders muted, so a bluffed citation looks weaker rather than passing silently. The generic output never gets pills.
+- **Rubric scorecard.** A fixed six-item commercial rubric scores both outputs, shown as a compact card above each column. Green pass, muted dash for fail (not red, this is a comparison, not an error state). The generic side typically shows several fails. Per-item justification appears on hover.
+- **Commercial Director commentary.** A short review in the CD's voice, rendered as a callout under the generic output, naming the specific institutional miss and the concrete move.
 
-### 4.7 Visual design
+### 4.8 UC1 send-ready documents and RFQ drop-zone
 
-Style language continues from the existing concept artifacts (Word doc, deck, prior HTML probe):
+On UC1 the Second Brain side offers downloads of customer-ready documents (Solution Description as Word, Pricing schedule and Statement of Compliance as spreadsheets), and the run area carries a drop-zone that ingests an uploaded customer RFQ to drive the output. Both are additive and never block the comparison.
 
-- **Typography:** Fraunces serif for headings and emphasis; IBM Plex Sans for body text; JetBrains Mono for labels and metadata.
-- **Palette:** Cream background (`#f7f5f0`), dark ink text, primary green accent (`#2d8a73`) for Second Brain elements, deep blue (`#1e4a6d`) and amber (`#c98a3c`) as secondary accents, taupe (`#b0a99a`) for generic/muted.
-- **Layout:** Generous whitespace, fine rules, editorial minimalism. Not corporate, not playful — strategist's working document.
+### 4.9 Visual design
 
-The visual language signals seriousness without looking like an internal IT tool.
+- **Typography:** Fraunces serif for headings and emphasis, IBM Plex Sans for body, JetBrains Mono for labels and metadata.
+- **Palette:** cream background (`#f7f5f0`), dark ink, primary green (`#2d8a73`) for Second Brain elements, deep blue (`#1e4a6d`) and amber (`#c98a3c`) as secondary accents, taupe (`#b0a99a`) for generic and muted.
+- **Layout:** generous whitespace, fine rules, editorial minimalism. A strategist's working document, not an internal IT tool.
 
 ---
 
@@ -265,46 +191,44 @@ The visual language signals seriousness without looking like an internal IT tool
 
 ### 5.1 Stack
 
-- **Framework:** React 18 (functional components, hooks)
-- **Build tool:** Vite
-- **HTTP:** Native `fetch` for Anthropic API streaming via `text/event-stream`
-- **Markdown rendering:** `react-markdown` (already widely used, lightweight)
-- **No backend.** All API calls are direct from the browser to Anthropic, using the `anthropic-dangerous-direct-browser-access: true` header. The user's API key is held in `sessionStorage` only — cleared on tab close, never persisted.
+- **Framework:** React 18 (functional components, hooks).
+- **Build tool:** Vite 5, with a dev-server proxy (`/mimir`) to the internal endpoint.
+- **HTTP:** native `fetch`.
+- **Markdown:** `react-markdown` (v9).
+- **Document generation (UC1):** `docxtemplater` and `pizzip` (Word from the real ICS template), and `xlsx` / SheetJS (spreadsheets). These are loaded dynamically on use, so app startup is unaffected and any failure is caught.
+- **No backend.** Calls go from the browser through the local Vite proxy to the internal endpoint. The bearer token lives in `sessionStorage` only.
 
 ### 5.2 Streaming
 
-Both `Generic` and `Second Brain` calls use `stream: true` and parse server-sent events. Streaming text appends to the output panels in real time, giving the judge the live-AI feel that matters in this context.
+`src/lib/api.js` carries a `USE_STREAMING` flag, currently off, because the endpoint's server-sent-event format is not yet confirmed. With it off, each answer arrives whole. The streaming branch (OpenAI-style SSE) and a streaming-tolerant citation parser are implemented and ready to enable once the format is verified.
 
-### 5.3 API model
+### 5.3 LLM endpoint and model
 
-Default: `claude-sonnet-4-5`. Configurable in `src/lib/api.js`.
+The Mimir GPT-5.4 proxy at `/mimir/v1/chat/completions`. Request body uses an `input` message array and `model: gpt-5.4`. Response parsing is defensive across common shapes. Endpoint, model, and parameters are configurable in `src/lib/api.js`.
 
 ### 5.4 Token budget
 
-- `max_tokens: 1500` per call. UC1 outputs (multi-section package) may need 2000–2500; configurable per use case.
-- Total context per Second Brain call: estimated 6,000–10,000 input tokens depending on use case. Well within model limits.
+Per-call `maxTokens` is set per use case (UC1 and UC3 higher for their multi-section output, UC2 lower). Second Brain context runs to roughly 10,000 to 30,000 input tokens depending on the use case and the loaded knowledgebase, well within model limits.
 
 ### 5.5 Prompt construction
 
-`src/lib/prompts.js` exports a `buildPrompt(useCase, mode)` function. For each use case and mode (`generic` | `second-brain`):
+`src/lib/prompts.js`:
+- `buildPrompt(useCase, mode, options)`: assembles the generic or second-brain system prompt. For second-brain it loads the skills and knowledgebase, injects a citations instruction with the exact citable filenames, and (UC1) swaps in an uploaded RFQ via `options.rfqOverride`.
+- `buildAssessmentPrompt(useCase, genericText, brainText)`: the rubric scoring and CD commentary call. Returns the fixed six-item `RUBRIC` and the CD skill in the system prompt, and instructs a strict JSON response.
+- `buildOfferDataPrompt(brainText)`: structures the UC1 output into pricing rows, compliance rows, and the solution-description fields for the document downloads.
+- `citationIndex(useCase)`: the filename-to-type map the renderer validates citations against.
 
-1. Define the **role / system frame** for that use case (the model's character and output shape).
-2. Fetch all required files for that mode.
-3. Concatenate them into a structured system prompt, with section headers (`## ROLE SKILLS`, `## CUSTOMER CONTEXT`, `## KNOWLEDGEBASE`, etc.).
-4. Add the **output structure instruction** — explicit instruction on the shape and sections the response must have.
-5. Return the assembled system prompt as a string.
+### 5.6 File loading and parsing
 
-The user message is the fixed scenario for that use case.
+`src/lib/files.js` fetches `/public/...` files fresh on each run (no caching). `src/lib/citations.js` holds the streaming-tolerant citation parser, the marker-stripping fallback, the `cite://` URL pass-through for react-markdown, and the defensive assessment-JSON parser. `src/lib/offerDocs.js` generates the UC1 downloads.
 
-### 5.6 File loading
+### 5.7 Error handling and demo safety
 
-`src/lib/files.js` exports `loadFile(path)` and `loadFiles(paths[])` helpers. These `fetch()` from `/public/...` paths. All file contents are loaded fresh on each scenario run — no caching — so the user can edit any file mid-session and re-run to see the effect without restarting the app.
-
-### 5.7 Error handling
-
-- If a file fails to load, show the path and error inline in the inputs panel.
-- If the API call fails, show the error in the affected output column without breaking the other column.
-- If the API key is missing or invalid, disable Run and show clear guidance.
+- A file that fails to load is skipped, the others still load.
+- A failed generation call shows its error in that column only.
+- The additive assessment and offer-data calls never block or break the outputs. On failure they show a quiet "unavailable" state.
+- Citation parsing failure falls back to plain text with markers stripped, never a broken render.
+- A missing token shows clear guidance instead of running.
 
 ---
 
@@ -312,54 +236,73 @@ The user message is the fixed scenario for that use case.
 
 ### 6.1 Skill files (`/public/skills/`)
 
-| File | Role | Owner |
-|------|------|-------|
-| `cd-commercial-director.md` | Commercial Director | Placeholder; rewrite by Andres |
-| `am-account-manager.md` | Account Manager (KAM) | Placeholder; rewrite by Andres |
-| `sa-solution-architect.md` | Solution Architect | Placeholder; rewrite by Andres |
-| `cm-contract-manager.md` | Contract Manager | Placeholder; rewrite by Andres |
-| `legal-counsel.md` | Legal Counsel | Placeholder; rewrite by Andres |
-| `customer-gcc-operator.md` | Customer behavioural skill (GCC operator) | Placeholder; rewrite by Andres |
-| `customer-contract-expert.md` | Customer contract expert | Placeholder; rewrite by Andres |
+| File | Role | Status |
+|------|------|--------|
+| `cd-commercial-director.md` | Commercial Director | Enriched, sourced, anonymised |
+| `am-account-manager.md` | Account Manager (KAM) | Enriched, sourced, anonymised |
+| `sa-solution-architect.md` | Solution Architect | Enriched, sourced, anonymised |
+| `cm-contract-manager.md` | Contract Manager | Enriched, sourced, anonymised |
+| `legal-counsel.md` | Legal Counsel | Enriched, sourced, anonymised |
+| `customer-gcc-operator.md` | Customer behavioural skill (GCC operator) | Enriched, sourced, anonymised |
+| `customer-contract-expert.md` | Customer contract function | Enriched, sourced, anonymised |
 
-Every skill file follows the same internal structure (see template at the top of each placeholder file). All placeholder files carry a clear `DRAFT — illustrative; to be replaced by Andres` header.
+All seven skills are enriched from real practitioner reasoning and anonymised. Each carries a DRAFT provenance header until cleared for external use.
 
 ### 6.2 Knowledgebase (`/public/knowledgebase/`)
 
-The knowledgebase is a single shared pool, organised by knowledge domain rather than by use case. No folder is named after a use case. Each use case selects the files it needs from this common pool through the manifest in `src/lib/prompts.js`, so a single file (for example the customer public financials) can feed more than one use case without being duplicated.
+A single shared pool organised by knowledge domain, not by use case. Each use case selects what it needs through the manifest in `src/lib/prompts.js`, so one file can feed more than one use case without duplication.
 
 ```
 /public/knowledgebase/
-├── customer-intelligence/        ← shared customer facts, drawn by any use case
+├── customer-intelligence/
 │   ├── customer-public-financials.md
 │   ├── customer-vendor-landscape.md
 │   ├── customer-installed-base.md
 │   └── customer-contract-history.md
-├── commercial-artifacts/         ← bid, deal, and portfolio artifacts
+├── commercial-artifacts/
 │   ├── rfi-sample.md
 │   ├── offer-template.md
+│   ├── sow-template.md
+│   ├── quotation-templates.md
 │   ├── premium-proposal-prior-deals.md
 │   ├── salesforce-deal-history.md
 │   └── product-catalog-extract.md
 ├── contract-artifacts/
-│   └── bctc-catalogue.md
+│   └── ericsson_bctc_catalogue.md
+├── solutions/
+│   └── ics_techno-commercial.md
+├── competitive-intelligence/
+│   ├── competitive_intel_nokia.md
+│   ├── competitive_intel_huawei.md
+│   ├── competitive_intel_zte.md
+│   └── competitive_intel_samsung.md
+├── active-deals/
+│   ├── ongoing-deal-qatar.md
+│   ├── ongoing-deal-bahrain.md
+│   └── ongoing-deal-uae.md
 └── won-loss-debriefs/
-    ├── 2024-q3-won-mcn-uae.md
-    ├── 2024-q4-lost-private-network-saudi.md
-    └── 2025-q1-won-software-attach-bahrain.md
+    └── illustrative_won_loss_debrief.md
 ```
 
-Andres will replace or augment these as real Ericsson content becomes available.
+All knowledge content is anonymised: the customer is always "a leading GCC operator," never named. Several files were sourced through the internal Glean assistant (Bedrock) and pasted in, so this repository must stay private. The two still-to-source items are `salesforce-deal-history.md` and the UC3 redline that finalises the Contracting scenario.
 
 ### 6.3 Generic RAG (`/public/generic-rag/`)
 
 ```
 /public/generic-rag/
-├── ericsson-public-overview.md       (Ericsson public profile, ~1 page)
-└── customer-public-overview.md       (GCC operator public profile, ~1 page)
+├── ericsson-public-overview.md       (Ericsson public profile)
+└── customer-public-overview.md       (leading GCC operator public profile, unnamed)
 ```
 
-These represent what a generic LLM with company-wide RAG would have access to. Deliberately surface-level. Comparable in volume to a Wikipedia article each.
+What a generic LLM with public RAG would have. Deliberately surface-level, but solid and fair: the generic side must be a credible baseline, not a strawman.
+
+### 6.4 Offer templates (`/public/offer-templates/`)
+
+The real Ericsson document templates the UC1 send-ready downloads fill (for example the Solution Description Word template). Served as static assets and read by `src/lib/offerDocs.js`.
+
+### 6.5 Source modules (`/src/`)
+
+`App.jsx` (shell, nav), `screens/Home.jsx`, `screens/UseCaseScreen.jsx`, `components/` (`InputsPanel`, `DualOutput`, `FileViewer`, `ApiKeyModal`, `RfqDropZone`), and `lib/` (`api.js`, `prompts.js`, `citations.js`, `files.js`, `scenarios.js`, `offerDocs.js`), with `styles.css`.
 
 ---
 
@@ -367,49 +310,54 @@ These represent what a generic LLM with company-wide RAG would have access to. D
 
 Recommended 15-minute panel demo:
 
-1. **Open** — show Home screen, frame the thesis in 60 seconds.
-2. **UC2 first** — the negotiation scenario lands hardest and is fastest to grasp. Show the inputs panel, click a skill file to display its content, run the scenario, walk both outputs.
-3. **UC1** — quotation generation. Demonstrates the productivity case.
-4. **UC3** — BCTC negotiation. Demonstrates the legal/contract case and that the same architecture scales to specialist domains.
-5. **Close** — return to Home and frame the asks: validate the concept, support Phase 1.
+1. **Open:** Home screen, frame the thesis in 60 seconds.
+2. **UC2 first:** the negotiation scenario lands hardest and fastest. Show the inputs panel, click a skill file, run the scenario, walk both outputs, then point to the scorecard, the citation pills, and the Commercial Director commentary.
+3. **UC1:** the quotation. The productivity case. Show the send-ready document downloads, and optionally drop in a real RFQ.
+4. **UC3 Contracting:** the deviation assessment. The legal and contract case, and proof the same architecture scales to a specialist domain.
+5. **Close:** return to Home and frame the asks.
 
-Each use case demo is 3–4 minutes.
+Each use case is 3 to 4 minutes.
+
+The single live dependency is the Mimir token. Grab a fresh one right before the panel, do not close the tab, and re-paste a fresh token if any call returns a 401 or 500.
 
 ---
 
-## 8. Out of scope for the MVP
+## 8. Scope
 
-The following are deliberately not included. Each is a reasonable next-phase question, not a hackathon-MVP requirement.
+### In scope (implemented)
 
-- **Live data integrations.** No CPQ, Salesforce, or SharePoint connections. All inputs are static files.
-- **Skill versioning and governance.** No skill review workflow, no audit log, no permissions model.
-- **The capture mechanism.** No tooling for capturing decisions-with-reasons at the moment of decision. The skills are hand-authored.
-- **Customer-specific authentication.** No SSO, no role-based access control.
-- **Multi-user editing.** Single-user local app only.
-- **Performance optimisation.** No caching, no model-call optimisation.
-- **Production deployment.** Local development only.
+- The two-call generic-versus-Second-Brain comparison, file-based knowledge loading, the inspectable inputs panel, and the fixed scenarios.
+- The legibility layer: citation pills, rubric scorecard, Commercial Director commentary.
+- UC1 send-ready document generation from the real templates, and the RFQ drop-zone override.
 
-These omissions are intentional and aligned with the demo's goal: validate the concept, not productise it.
+### Out of scope (next-phase)
+
+- **Live data integrations** beyond the single dropped RFQ. No CPQ, Salesforce, or SharePoint connections. Knowledge is static files.
+- **Production deployment.** Local development only. A SIGMA / Azure AI Foundry deployment with Azure AI Search retrieval is a Phase 1 question, deliberately not built, the curated files are higher fidelity for the demo.
+- **The capture mechanism.** Skills are hand-authored, not captured at the moment of decision.
+- **Skill versioning and governance, authentication, multi-user editing, performance optimisation.**
+
+These omissions are intentional: validate the concept, not productise it.
 
 ---
 
 ## 9. What this MVP must do well
 
-If anything else gives way, these three things must work:
+If anything else gives way, these must work:
 
-1. **The dual output must be visibly different in a way that demonstrates the thesis.** If the Second Brain output is only marginally better than the generic output, the demo fails regardless of how polished the rest is. The skill files and knowledgebase content must carry real Ericsson reasoning the generic side cannot reach.
-2. **The inputs must be inspectable.** A judge clicking a skill file and reading it should think *this is real institutional knowledge captured as a file*, not *this is a string in a script*.
-3. **The demo must not break.** Pre-tested scenarios. Pre-loaded API key. No live edits during the demo. No internet dependency beyond the API call.
+1. **The dual output must be visibly different in a way that demonstrates the thesis.** The skills and knowledgebase must carry real reasoning the generic side cannot reach, and the legibility layer must make that delta obvious in seconds.
+2. **The inputs must be inspectable.** A judge clicking a file should think *this is real institutional knowledge captured as a file*, not *a string in a script*.
+3. **The demo must not break.** Pre-tested scenarios, a fresh token loaded before the panel, no live edits, and the only network dependency is the endpoint call. The additive layer fails quietly and never takes down the outputs.
 
-Everything else — perfect visual polish, edge-case error handling, the elegance of the codebase — is secondary.
+Everything else is secondary.
 
 ---
 
 ## 10. Sign-off
 
-This specification is the source of truth for the MVP. Code, content, and design decisions should refer back to this document.
+This specification is the source of truth for the MVP. Code, content, and design decisions refer back to it.
 
-Open questions to be resolved during build:
-- Final wording and depth of each skill file (Andres rewrite)
-- BCTC catalogue content (Andres to provide real BCTC documentation)
-- Won/Loss debrief content (Andres to provide one or two real anonymised debriefs if possible)
+Resolved since v1.0: all seven skills enriched and sourced, the knowledgebase populated and anonymised, the BCTC catalogue loaded, the endpoint moved to Mimir GPT-5.4, the use cases reframed around the Integrated Core Solution, and the legibility and document-generation layers built.
+
+Open items: finalise the UC3 Contracting scenario from the real customer deviations, source `salesforce-deal-history.md`, and decide whether to enable streaming for the demo.
+```

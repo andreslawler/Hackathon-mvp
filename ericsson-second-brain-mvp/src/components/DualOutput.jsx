@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { streamCompletion, getApiKey } from '../lib/api.js';
 import { buildPrompt, buildAssessmentPrompt, buildOfferDataPrompt, citationIndex } from '../lib/prompts.js';
@@ -8,6 +8,7 @@ import {
   stripCiteMarkers,
   parseAssessmentJson,
   citeUrlTransform,
+  countGroundedFromMarkdown,
 } from '../lib/citations.js';
 import {
   downloadSolutionDescription,
@@ -222,10 +223,30 @@ function Column({
   offerState,
   offerData,
 }) {
+  // One citation parse per output, shared by the rendered pills and the grounding count, so the
+  // number can never diverge from the highlights. The generic side is never tagged, so it has no
+  // parse and a hardcoded zero.
+  const idx = useMemo(() => (cited ? citationIndex(useCase) : null), [cited, useCase]);
+  const cite = useMemo(() => {
+    if (!cited) return { ok: true, md: null };
+    try {
+      return { ok: true, md: preprocessCitations(text) };
+    } catch {
+      return { ok: false, md: stripCiteMarkers(text) };
+    }
+  }, [cited, text]);
+  const grounding = useMemo(() => {
+    if (!cited) return { ok: true, valid: 0, reasoning: 0, data: 0 };
+    if (!cite.ok) return { ok: false, valid: 0, reasoning: 0, data: 0 };
+    return { ok: true, ...countGroundedFromMarkdown(cite.md, idx) };
+  }, [cited, cite, idx]);
+
   return (
     <div className={`output-col ${variant}`}>
       <h3>{title}</h3>
       <div className="col-sub">{subtitle}</div>
+
+      {state === 'done' && <GroundingIndicator variant={variant} grounding={grounding} />}
 
       {assessmentState !== 'idle' && <Scorecard items={scorecard} state={assessmentState} />}
 
@@ -250,7 +271,7 @@ function Column({
               <span className="spinner" /> Generating…
             </span>
           ) : cited ? (
-            <CitedMarkdown text={text} useCase={useCase} />
+            <CitedMarkdown md={cite.md} idx={idx} />
           ) : (
             <ReactMarkdown>{text}</ReactMarkdown>
           )}
@@ -278,20 +299,12 @@ function safeDecode(s) {
 
 // Renders the Second Brain output with citation pills. Falls back to plain (markers stripped)
 // if preprocessing ever fails, so the output always reads correctly.
-function CitedMarkdown({ text, useCase }) {
-  let md;
-  try {
-    md = preprocessCitations(text);
-  } catch {
-    md = stripCiteMarkers(text);
-  }
-  const idx = citationIndex(useCase);
-
+function CitedMarkdown({ md, idx }) {
   const components = {
     a: ({ href, children }) => {
       if (typeof href === 'string' && href.startsWith('cite://')) {
         const file = safeDecode(href.slice('cite://'.length));
-        const type = idx[file] || null;
+        const type = (idx && idx[file]) || null;
         const cls = type ? `cite cite-${type}` : 'cite cite-unknown';
         const tip = type ? file : `unrecognised source: ${file}`;
         return (
@@ -312,6 +325,30 @@ function CitedMarkdown({ text, useCase }) {
     <ReactMarkdown urlTransform={citeUrlTransform} components={components}>
       {md}
     </ReactMarkdown>
+  );
+}
+
+// Per-run grounding density. Derived only from the parsed pills above: the count of validated
+// citations in this answer. Generic is always zero by construction. This is a claim about this
+// answer's traceability, not about corpus size.
+function GroundingIndicator({ variant, grounding }) {
+  if (variant === 'brain' && grounding && grounding.ok === false) {
+    return <div className="grounding muted">Grounding unavailable</div>;
+  }
+  const n = (grounding && grounding.valid) || 0;
+  const noun = n === 1 ? 'claim' : 'claims';
+  const showSplit =
+    variant === 'brain' && n > 0 && grounding && (grounding.reasoning || grounding.data);
+  return (
+    <div className={`grounding ${variant}`}>
+      <span className="g-count">{n}</span> {noun} grounded in named sources
+      {showSplit ? (
+        <span className="g-split">
+          {' · '}
+          {grounding.reasoning} reasoning, {grounding.data} data
+        </span>
+      ) : null}
+    </div>
   );
 }
 
