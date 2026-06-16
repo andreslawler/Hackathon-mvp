@@ -2,6 +2,7 @@ import { useState } from 'react';
 import InputsPanel from '../components/InputsPanel.jsx';
 import DualOutput from '../components/DualOutput.jsx';
 import FileViewer from '../components/FileViewer.jsx';
+import RfqDropZone from '../components/RfqDropZone.jsx';
 import { SCENARIOS } from '../lib/scenarios.js';
 
 const META = {
@@ -28,9 +29,11 @@ const META = {
   },
 };
 
-export default function UseCaseScreen({ useCase }) {
+export default function UseCaseScreen({ useCase, inputsCollapsed, onToggleInputs }) {
   const meta = META[useCase];
   const [viewing, setViewing] = useState(null);
+  const [rfq, setRfq] = useState(null); // { filename, text } | null — UC1 Path 2 only
+  const isUc1 = useCase === 'uc1';
 
   return (
     <>
@@ -40,8 +43,14 @@ export default function UseCaseScreen({ useCase }) {
         <p className="screen-deck">{meta.deck}</p>
       </header>
 
-      <div className="uc-layout">
-        <InputsPanel useCase={useCase} onOpen={(path) => setViewing(path)} />
+      <div className={`uc-layout${inputsCollapsed ? ' inputs-collapsed' : ''}`}>
+        <InputsPanel
+          useCase={useCase}
+          onOpen={(src) => setViewing(src)}
+          collapsed={inputsCollapsed}
+          onToggle={onToggleInputs}
+          rfq={isUc1 ? rfq : null}
+        />
 
         <div className="uc-run-area">
           <div className="scenario-box">
@@ -49,11 +58,23 @@ export default function UseCaseScreen({ useCase }) {
             <div className="text">{SCENARIOS[useCase]}</div>
           </div>
 
-          <DualOutput useCase={useCase} maxTokens={meta.maxTokens} />
+          {isUc1 && (
+            <RfqDropZone
+              rfq={rfq}
+              onIngest={(payload) => setRfq(payload)}
+              onClear={() => setRfq(null)}
+            />
+          )}
+
+          <DualOutput
+            useCase={useCase}
+            maxTokens={meta.maxTokens}
+            rfqOverride={isUc1 ? rfq : null}
+          />
         </div>
       </div>
 
-      {viewing && <FileViewer path={viewing} onClose={() => setViewing(null)} />}
+      {viewing && <FileViewer source={viewing} onClose={() => setViewing(null)} />}
     </>
   );
 }

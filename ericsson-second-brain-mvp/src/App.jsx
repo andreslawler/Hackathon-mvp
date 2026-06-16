@@ -15,6 +15,9 @@ export default function App() {
   const [tab, setTab] = useState('home');
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [keyTick, setKeyTick] = useState(0); // bump to re-read getApiKey()
+  // Lifted above UseCaseScreen (which remounts per tab) so the collapse state persists as the
+  // user moves between UC1, UC2, and UC3 within a session.
+  const [inputsCollapsed, setInputsCollapsed] = useState(false);
 
   useEffect(() => {
     if (!getApiKey()) setShowKeyModal(true);
@@ -53,7 +56,14 @@ export default function App() {
 
       <main className="app-main">
         {tab === 'home' && <Home onNavigate={setTab} />}
-        {tab !== 'home' && <UseCaseScreen key={tab} useCase={tab} />}
+        {tab !== 'home' && (
+          <UseCaseScreen
+            key={tab}
+            useCase={tab}
+            inputsCollapsed={inputsCollapsed}
+            onToggleInputs={() => setInputsCollapsed((c) => !c)}
+          />
+        )}
       </main>
 
       {showKeyModal && (

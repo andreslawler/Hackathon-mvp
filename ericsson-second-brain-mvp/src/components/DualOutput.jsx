@@ -10,7 +10,7 @@ import {
   citeUrlTransform,
 } from '../lib/citations.js';
 
-export default function DualOutput({ useCase, scenario, maxTokens = 1500 }) {
+export default function DualOutput({ useCase, scenario, maxTokens = 1500, rfqOverride = null }) {
   const [genericText, setGenericText] = useState('');
   const [brainText, setBrainText] = useState('');
   const [genericState, setGenericState] = useState('idle'); // idle | loading | streaming | done | error
@@ -69,7 +69,7 @@ export default function DualOutput({ useCase, scenario, maxTokens = 1500 }) {
 
     const runBrain = (async () => {
       try {
-        const system = await buildPrompt(useCase, 'second-brain');
+        const system = await buildPrompt(useCase, 'second-brain', { rfqOverride });
         setBrainState('streaming');
         await streamCompletion({
           system,

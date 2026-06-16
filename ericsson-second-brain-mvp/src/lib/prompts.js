@@ -198,9 +198,13 @@ Draft replacement language aligned to Ericsson's wanted position for the three h
 // Prompt assembly
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function buildPrompt(useCase, mode) {
+export async function buildPrompt(useCase, mode, options = {}) {
   const role = ROLES[useCase];
   if (!role) throw new Error(`Unknown use case: ${useCase}`);
+
+  // UC1 Path 2: an uploaded customer RFQ (.docx text) replaces the built-in rfi-sample.md in the
+  // Second Brain context only. Null for the generic side and for every other path and use case.
+  const { rfqOverride = null } = options;
 
   if (mode === 'generic') {
     const files = await loadFiles(GENERIC_FILES);
@@ -232,9 +236,25 @@ Produce the requested output to the best of your ability using only the context 
       .map((f) => `### ${f.path}\n\n${f.text}`)
       .join('\n\n---\n\n');
 
-    const kbBlock = kbFiles
+    // Build the knowledgebase entries. If an uploaded RFQ is present (UC1 Path 2), swap the
+    // built-in rfi-sample.md content for the uploaded document so the dropped file genuinely
+    // drives the Second Brain output. Falls back to prepending if rfi-sample.md did not load.
+    const kbEntries = kbFiles
       .filter((f) => f.ok)
-      .map((f) => `### ${f.path}\n\n${f.text}`)
+      .map((f) => ({ heading: f.path, text: f.text }));
+
+    if (rfqOverride && rfqOverride.text && rfqOverride.text.trim()) {
+      const uploaded = {
+        heading: `Customer RFQ (uploaded): ${rfqOverride.filename || 'customer-rfq.docx'}`,
+        text: rfqOverride.text,
+      };
+      const i = kbEntries.findIndex((e) => e.heading.endsWith('rfi-sample.md'));
+      if (i >= 0) kbEntries[i] = uploaded;
+      else kbEntries.unshift(uploaded);
+    }
+
+    const kbBlock = kbEntries
+      .map((e) => `### ${e.heading}\n\n${e.text}`)
       .join('\n\n---\n\n');
 
     return `${role}
