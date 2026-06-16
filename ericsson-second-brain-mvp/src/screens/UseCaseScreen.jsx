@@ -21,7 +21,7 @@ const META = {
   },
   uc3: {
     kicker: 'Use Case 3',
-    title: 'BCTC contract negotiation',
+    title: 'Contracting',
     deck:
       'A contract deviation assessment. The Second Brain has the BCTC catalogue with Ericsson wanted positions, the customer contract history, and the role skills of Contract Manager and Legal Counsel.',
     maxTokens: 2200,

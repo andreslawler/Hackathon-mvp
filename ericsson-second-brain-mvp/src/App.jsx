@@ -8,7 +8,7 @@ const TABS = [
   { id: 'home', label: 'Home' },
   { id: 'uc1', label: 'UC1 · Quotation' },
   { id: 'uc2', label: 'UC2 · Negotiation' },
-  { id: 'uc3', label: 'UC3 · BCTC' },
+  { id: 'uc3', label: 'UC3 · Contracting' },
 ];
 
 export default function App() {

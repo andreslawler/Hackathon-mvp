@@ -66,7 +66,7 @@ export const MANIFEST = {
     },
   },
   uc3: {
-    title: 'BCTC Contract Negotiation',
+    title: 'Contracting',
     secondBrain: {
       skills: [
         { path: '/skills/cm-contract-manager.md', label: 'Contract Manager' },
@@ -96,6 +96,49 @@ export const GENERIC_MANIFEST = [
 
 function filename(path) {
   return path.split('/').pop().replace(/\.md$/, '');
+}
+
+function basenameExt(path) {
+  return path.split('/').pop();
+}
+
+// Map of the exact citable filenames for a use case to their pill type.
+// Skills are "reasoning" (how Ericsson reasons). Knowledgebase artifacts are "data".
+// This is the single source of truth the renderer validates citations against.
+export function citationIndex(useCase) {
+  const m = MANIFEST[useCase] && MANIFEST[useCase].secondBrain;
+  const idx = {};
+  if (!m) return idx;
+  for (const s of m.skills) idx[basenameExt(s.path)] = 'reasoning';
+  for (const k of m.knowledgebase) idx[basenameExt(k.path)] = 'data';
+  return idx;
+}
+
+// The CITATIONS instruction block injected into the Second Brain prompt, with the exact
+// citable filenames for this use case so the model can only cite real loaded files.
+function citationBlockText(useCase) {
+  const m = MANIFEST[useCase] && MANIFEST[useCase].secondBrain;
+  if (!m) return '';
+  const list = (arr) => arr.map((p) => `- ${basenameExt(p.path)}`).join('\n');
+  return `# CITATIONS
+
+As you write, mark each claim that genuinely draws on a specific fact, pattern, wanted position, or prior outcome found in one of the loaded files listed below. Wrap that claim inline exactly like this:
+
+[[cite:TYPE:filename]]the claim text[[/cite]]
+
+TYPE is "reasoning" when the claim draws on a role skill (how Ericsson reasons). TYPE is "data" when the claim draws on a knowledgebase artifact (a deal record, financials, a won/loss debrief, a contract history, the BCTC catalogue).
+
+Rules:
+- Tag only a claim that genuinely draws on one of the named files below. Use the exact filename string. Do not invent, abbreviate, or alter filenames.
+- Do not tag general commercial reasoning that any competent advisor would produce. Most prose stays untagged. Selective tagging is the point: a tag means the claim came from institutional memory.
+- Never nest tags. One claim, one tag. Keep the tagged span to a single inline claim, not a whole paragraph or list.
+- Do not place a tag inside a markdown table cell or a heading.
+
+Files you may cite as reasoning (role skills):
+${list(m.skills)}
+
+Files you may cite as data (knowledgebase):
+${list(m.knowledgebase)}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -208,10 +251,70 @@ ${skillsBlock}
 
 ${kbBlock}
 
+${citationBlockText(useCase)}
+
 # INSTRUCTIONS
 
 Produce the requested output using all of the above context. Reason like an experienced Ericsson commercial team member with full institutional knowledge of how Ericsson decides and how this customer behaves.`;
   }
 
   throw new Error(`Unknown mode: ${mode}`);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Assessment call (Features 2 and 3). One call scores both outputs against the
+// shared rubric and writes the Commercial Director review of the generic output.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export const RUBRIC = [
+  'Avoids a headline percentage discount as the primary lever.',
+  'Flags group-framework precedent risk: a concession that propagates across OPCO accounts unless explicitly fenced.',
+  'Anchors on value and capability (GPL ratio, commercial construct) rather than cost-plus or list-price matching.',
+  'Names what the customer is actually optimizing for, separate from what they state.',
+  'Proposes a fenced, non-propagating commercial construct (time-bound bundle incentive, structured terms) rather than an open concession.',
+  'Defends the position structurally, not only on price: names the right battlefield when the competitor has a different cost structure.',
+];
+
+export async function buildAssessmentPrompt(useCase, genericText, brainText) {
+  const [cd] = await loadFiles(['/skills/cd-commercial-director.md']);
+  const cdSkill = cd && cd.ok ? cd.text : '';
+  const rubricList = RUBRIC.map((r, i) => `${i + 1}. ${r}`).join('\n');
+
+  const system = `You are assessing two AI-generated commercial responses to the same scenario. One response was written by a generic model with only public information. The other was written with Ericsson's institutional knowledge loaded. Score both against a fixed rubric, then write a short Commercial Director review of the generic response.
+
+Be fair to the generic response. Where its answer is reasonable in general commercial terms, say so and pass it. It should lose only on institutional specifics it could not know, not on a rigged standard. Do not strawman it.
+
+Score each output against each rubric item. Each item is a binary pass or fail. For each item, write one sentence of justification grounded in what that output actually says.
+
+RUBRIC (score both outputs against these six items, in order):
+${rubricList}
+
+Then write the CD commentary: 2 to 4 short sentences in the voice of an Ericsson Commercial Director, reviewing the GENERIC output and naming the specific institutional miss. Active voice. Short declarative sentences. Observational, not advisory. No em dashes. No semicolons. Do not name any real customer, refer to it as a leading GCC operator. End on the concrete move, not a list of considerations.
+
+Apply the judgement and voice of the Commercial Director skill below.
+
+# COMMERCIAL DIRECTOR SKILL
+${cdSkill}
+
+Return ONLY a single valid JSON object. No preamble, no explanation, no markdown code fences. The exact shape is:
+{
+  "rubric": {
+    "generic": [ {"item": "<rubric item text>", "pass": true, "note": "<one sentence>"} ],
+    "secondBrain": [ {"item": "<rubric item text>", "pass": true, "note": "<one sentence>"} ]
+  },
+  "cdCommentary": "<2 to 4 sentences>"
+}
+Each rubric array must contain exactly six objects, in the same order as the rubric above. The "pass" field is a JSON boolean.`;
+
+  const userMessage = `Both responses answer the same scenario.
+
+=== GENERIC OUTPUT ===
+${genericText}
+
+=== SECOND BRAIN OUTPUT ===
+${brainText}
+
+Score both against the rubric and write the CD commentary on the generic output. Return only the JSON object.`;
+
+  return { system, userMessage };
 }

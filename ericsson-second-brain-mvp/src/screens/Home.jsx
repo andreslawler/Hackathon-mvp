@@ -29,7 +29,7 @@ export default function Home({ onNavigate }) {
         />
         <Card
           n="03"
-          title="BCTC contract negotiation"
+          title="Contracting"
           body="A contract deviation assessment. The Second Brain has the BCTC catalogue with Ericsson wanted positions and the customer's known contract pattern."
           onClick={() => onNavigate('uc3')}
         />
