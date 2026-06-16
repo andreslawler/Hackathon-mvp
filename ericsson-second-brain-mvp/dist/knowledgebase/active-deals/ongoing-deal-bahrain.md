@@ -37,7 +37,7 @@ The **core capacity requirements** for the defence private network are defined a
 - **Throughput:** 10 Gbps initial core throughput, with hardware ready for up to 20 Gbps and approximately 100,000 subscribers.  
 - **Geo-redundancy:** Two geographically separated core sites with active-active and active-standby configurations for different network functions.  
 
-The **compact IMS** solution is specifically dimensioned to support **1,000 active users** from both infrastructure and software license perspectives. It provides basic VoLTE / ViLTE without interconnect, SRVCC or roaming, consistent with a closed private network focussed on internal defence use cases.  
+The **compact IMS** solution is specifically dimensioned to support **1,000 active users** from both infrastructure and software license perspectives. It provides basic VoLTE without interconnect, SRVCC or roaming, consistent with a closed private network focussed on internal defence use cases.  
 
 ### Core domains and components
 
@@ -49,7 +49,7 @@ The ICS proposal for this deal includes the following key network functions and 
 | Subscriber and Policy Data | **CCDM** (UDR and provisioning). **CCSM** (UDM, AUSF, HSS-EPC, EIR). | Stores and provisions subscription and policy data for 4G and 5G NSA services, including defence subscribers and policy profiles. |
 | Policy Control | **CCPC** (PCF/PCRF). | Delivers policy decisions for both 4G and 5G domains, integrated with PCG and PCC. Supports QoS and MC service policies. |
 | Signalling | **SC** (Diameter DRA/DEA/DA, BSF, SCP, SEPP). | Provides signalling control and routing for 4G/5G core, including PCF bindings and Diameter functions. |
-| Private IMS | **CSCF**, **MTAS**, **SBG/BGF**, **MRF**, **IPWorks** (ENUM, DNS), **vHSS** (IMS, EPC, AVG). | Delivers VoLTE / ViLTE and IMS services for up to 1,000 active users with 1+1 geo-redundant deployment. |
+| Private IMS | **CSCF**, **MTAS**, **SBG/BGF**, **MRF**, **IPWorks** (ENUM, DNS), **vHSS** (IMS, EPC, AVG). | Delivers VoLTE and IMS services for up to 1,000 active users with 1+1 geo-redundant deployment. |
 | Orchestration & Automation | **EVNFM** (CNF/VM VNF LCM). **EDA2** (convergent provisioning). **5G CAS** (pipelines, CNOM, AAT, GitLab, Vault). | Handles lifecycle management, automated deployment, upgrade and acceptance testing of core CNFs and vIMS VNFs. |
 | Cloud Infrastructure | **CNIS** with **SDI3**, **CCD**, **Ceph hosted storage**, **CEE** for vIMS/vHSS. | Provides a compact two-site cloud fabric with hyperconverged Ceph storage and CCD cluster hosting all CNFs. |
 | OAM and Monitoring | **CNOM** embedded, ENM / ENIQ integration, EOI-based OAM, PM, FM, logging. | Supports uniform OAM across ICS and vIMS, with alarm and performance data accessible via standard interfaces and CNOM dashboards. |

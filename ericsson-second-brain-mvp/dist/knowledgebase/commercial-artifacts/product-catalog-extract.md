@@ -40,7 +40,7 @@ The ICS is a cloud-native dual-mode 4G/5G core deployed on the Ericsson CNIS pla
 
 | Product | Function |
 |---|---|
-| CSCF, MTAS, SBG/BGF, MRF, IPWorks (ENUM, DNS) | VoLTE and ViLTE for the private network |
+| CSCF, MTAS, SBG/BGF, MRF, IPWorks (ENUM, DNS) | VoLTE for the private network |
 
 ## Optional packages
 

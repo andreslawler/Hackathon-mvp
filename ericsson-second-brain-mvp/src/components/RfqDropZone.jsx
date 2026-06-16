@@ -2,11 +2,12 @@ import { useRef, useState } from 'react';
 import { extractDocxText } from '../lib/docx.js';
 
 const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+const RFI_PATH = '/knowledgebase/commercial-artifacts/rfi-sample.md';
 
 // UC1 Path 2: optional drag-and-drop of a customer RFQ (.docx). On success the extracted text
 // replaces the built-in rfi-sample.md in the Second Brain prompt for the next run. Never blocks
 // the screen: a bad type, an empty file, or an extraction failure all fall back to Path 1.
-export default function RfqDropZone({ rfq, onIngest, onClear }) {
+export default function RfqDropZone({ rfq, onIngest, onClear, onOpen }) {
   const [dragOver, setDragOver] = useState(false);
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState('');
@@ -96,7 +97,18 @@ export default function RfqDropZone({ rfq, onIngest, onClear }) {
             </button>
           </span>
         ) : (
-          <span className="rfq-active builtin">Built-in sample RFI (rfi-sample.md)</span>
+          <span className="rfq-active builtin">
+            Built-in sample RFI (
+            <button
+              type="button"
+              className="rfq-file-link"
+              onClick={() => onOpen(RFI_PATH)}
+              title="Open rfi-sample.md"
+            >
+              rfi-sample.md
+            </button>
+            )
+          </span>
         )}
       </div>
 

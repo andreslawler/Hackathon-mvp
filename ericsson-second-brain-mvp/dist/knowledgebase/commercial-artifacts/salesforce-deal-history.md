@@ -1,53 +1,53 @@
-> **DRAFT — illustrative content. Replace with real Salesforce extract when available.**
+> **DRAFT: illustrative ICS and private-core deal history for the MVP. Customer not named, referred to as a leading GCC operator. Figures are illustrative and ICS-weighted, consistent with the ongoing-deal references and the premium-proposal benchmarks. Replace with a real Salesforce extract when available.**
 
-# Salesforce Deal History — Leading GCC Operator
+# Salesforce Deal History: Leading GCC Operator
 
-Summary view of opportunity pipeline and deal history with this customer over the last three years.
+Summary of the Integrated Core Solution and private-core pipeline and deal history with this customer over the last three years. Mission Critical Networks segment. Ericsson scope is the core. The operator owns its RAN, so RAN hardware is not in Ericsson scope. Some mission-critical deals include LTE RAN-sharing software (MOCN) on the operator's existing radio.
 
 ---
 
 ## Pipeline currently open
 
-| Opp ID | Description | Stage | Value (indicative) | Probability |
-|--------|-------------|-------|---------------------|-------------|
-| OPP-2026-0142 | MCN expansion (current RFI) | Qualification | $50M | 50% |
-| OPP-2026-0089 | Transport refresh phase 2 | Proposal | $14M | 65% |
-| OPP-2026-0076 | Managed services scope expansion | Proposal | $22M | 40% |
-| OPP-2025-0521 | AI-RAN pilot extension | Negotiation | $8M | 80% |
+| Opportunity | Description | Stage | Value (indicative) | Probability |
+|---|---|---|---|---|
+| Private MCN core (current RFI) | ICS dual-mode core, ~20k users, Compact IMS, 40 Gbps, geo-red 1+1 | Qualification | ~$8M | 50% |
+| National private-core framework | Multi-site ICS for the group, phased capacity | Qualification | ~$55M | 35% |
+| Compact IMS attach | Private voice on an existing private core | Proposal | ~$2M | 65% |
+| ICS Phase-2 capacity uplift | Term-based licence expansion on a deployed core | Negotiation | ~$3M | 80% |
+| MCPTT and slicing package | Optional-package attach to a private core | Proposal | ~$1.5M | 55% |
 
 ## Closed-won deals (last 3 years)
 
 | Year | Description | Value | Construct |
-|------|-------------|-------|-----------|
-| 2023 | MCN expansion (Deal A) | $45M | Multi-year framework with rebates |
-| 2023 | Software upgrade — radio release | $6M | One-time, framework pricing |
-| 2024 | Transport network upgrade (Deal C) | $18M | One-time with NMS attach |
-| 2024 | AI-RAN pilot | $3M | Pilot pricing, scope-limited |
-| 2025 | Mid-band capacity uplift (Deal D) | $70M | Group framework with cross-OPCO aggregation |
-| 2025 | Managed services renewal | $35M | Three-year MS agreement |
+|---|---|---|---|
+| 2023 | National operator private-core (private-network segment) | ~$60M | Multi-year framework, software-heavy, deep gross-to-net |
+| 2024 | Airport private network: ICS core, eMBMS, MCPTT | ~$15M | Ten-year TCO, operator as prime |
+| 2024 | Compact IMS attach and capacity uplift | ~$3M | Software-attach on installed core |
+| 2025 | Defence private core: ICS, geo-red vIMS, LTE RAN-sharing bundle | ~$9M | Bundle incentive, term-based licences |
 
 ## Closed-lost deals (last 3 years)
 
 | Year | Description | Value | Lost to | Loss reason |
-|------|-------------|-------|---------|-------------|
-| 2024 | Private network for enterprise (Deal B) | $22M | Nokia | Price — Ericsson held regional reference |
-| 2024 | Small cell expansion phase 1 | $12M | Huawei | Price + bundled financing |
-| 2025 | Niche IoT platform | $4M | Specialist vendor | Out of strategic Ericsson focus |
+|---|---|---|---|---|
+| 2024 | Enterprise campus private 5G core | ~$5M | Nokia | Price. Ericsson not the core incumbent in that account |
+| 2025 | Utility private network ICS core | ~$8M | Huawei | Price and a faster local delivery commitment |
+| 2025 | Small ICS pilot | ~$1M | No decision | Deferred to the next budget cycle |
 
 ## Deal patterns
 
-- **Total business with this customer (last 3 years, closed-won):** ~$177M
-- **Win rate by deal count:** approximately 67%
-- **Win rate by deal value:** approximately 82%
+- **Total ICS and private-core business (last 3 years, closed-won):** ~$87M
+- **Win rate by deal count:** approximately 65%
+- **Win rate by deal value:** approximately 80%
 - **Win rate against Nokia specifically:** approximately 60%
-- **Win rate where Ericsson is incumbent for the technology:** approximately 90%
-- **Win rate where Ericsson is not incumbent or where new technology is being introduced:** approximately 45%
+- **Win rate where Ericsson is the core incumbent:** approximately 90%
+- **Win rate where introducing ICS into a new account:** approximately 45%
 
 ## Customer behaviour notes (from KAM debriefs)
 
-- **Average sales cycle:** 4-7 months from qualification to close on framework deals; 9-12 months on new-category deals
-- **Number of negotiation rounds typical:** 3-4 on commercial construct; 4-6 on contract terms
-- **Decision-maker engagement pattern:** procurement leads early phases, CFO engages on construct, CTO/operations engage on technical, General Counsel and external counsel late on terms
+- **Average sales cycle:** 6 to 9 months on ICS framework deals. 12 to 18 months on a new private-network category.
+- **Negotiation rounds typical:** 3 to 4 on commercial construct. 4 to 6 on BCTC terms.
+- **Decision-maker engagement pattern:** procurement leads the early phases. The CFO engages on TCO and the term-based licence model. The CTO and network teams engage on capacity, geo-redundancy and the CNIS platform. Security and sovereignty teams scrutinise lawful interception and data residency. The General Counsel and external counsel engage late on BCTCs.
+- **Commercial levers that move this customer:** term-based licence over perpetual, multi-year TCO framing, software-attach on optional packages (Compact IMS, MCPTT, network slicing), and a fenced break-in incentive for a first ICS deployment that does not propagate across OPCO accounts. Financing relief is a weak lever. This customer is cash-rich and low-leverage. Value and strategic fit win.
 
 ---
 

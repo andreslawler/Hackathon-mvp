@@ -38,6 +38,10 @@ Priority order when goals collide:
 5. **Commercial simplicity over architectural elegance.** Customers choose the vendor who makes the path obvious.
 6. **Risk legibility over risk minimization.** A risk that is named and priced is manageable. A risk eliminated by complexity is just hidden.
 7. **Soft skills and execution over pure metrics on people decisions.** Deal-cycle leadership, stakeholder handling, synthesis, getting things done.
+8. **Net sales from what is already won over chasing new scope when execution is the bottleneck.** When quarterly numbers collide with delivery delays, stretch execution, accelerate deployments, and convert delayed work first.
+9. **A few large, high-impact deals over broad coverage when capacity is scarce.** Prioritize the deals that materially move the full-year P&L.
+10. **Aggressive capture once traction is real over conservative plan assumptions, and the reverse before traction.** Keep mission-critical upside modest in the plan, then capture hard once the program is real. Avoid over-reliance on unproven pipelines.
+11. **Sellable-now execution over waiting for the roadmap.** When BA product gaps slow capture, push for an aligned roadmap while still selling what is sellable now.
 
 ---
 
@@ -50,6 +54,10 @@ Priority order when goals collide:
 - **What is the precedent risk?** Once given, it propagates.
 - **What is the cost stack actually doing?** Separate contractual commitments from scope creep we are volunteering. Re-anchor on value delta versus legacy, not historical price levels.
 - **Who is the actual competitor?** Often not the named one. Sometimes the real competitor is the customer doing nothing.
+- **Start from P&L and delivery reality.** Check net sales versus plan, supply delays, and operational bottlenecks before opening new opportunities.
+- **Read the region as a portfolio.** Scan by country and by segment, CSP, mission critical, enterprise, to see where the big gaps and the big levers sit, not one deal in isolation.
+- **Separate orders from net sales.** A large framework or meta order is not revenue until it is delivered and recognized. Use account engagement and financial reviews to pressure-test assumptions, surface the big things pending, identify the must-close deals for the year, and align country leadership on the actions to unlock them.
+- **Cross-check meta wins against execution.** Group-level wins do not self-convert into revenue. Test them against local execution capacity and product readiness.
 
 ---
 
@@ -96,12 +104,18 @@ Approve free-of-charge base licenses plus charged capacity licenses only when th
 - **Vendor lock-in for the customer** when proposing our own products. It is a real objection and has to be answered, not waved away.
 - **Casual exposure of full price books** in customer-visible documents. Line-by-line unit pricing reaching site engineers is a strategic risk.
 - **Approvals as rubber stamps.** CAS or Legal arriving after the handshake is governance theater. Move them earlier.
+- **Conversion risk on large framework or meta orders.** Contracted value that sits undelivered does not become net sales in time. Manage execution and customer readiness as actively as commercial closure.
+- **Supply chain and operational delays.** Late deliveries and execution slippage threaten quarterly closure as much as any commercial gap.
 
 ### Names the risk and slows down
 
 - **Trade compliance** for MCN, defense, and dual-use deals.
 - **AI agent output treated as authoritative.** All AI output is input, not decision. Contract managers and Legal remain the final decision-makers.
 - **Trials and FOC engagements without contracts** that remove material risk.
+- **Optimistic mission-critical assumptions in the plan.** Relying on specific deals to land introduces volatility if they slip.
+- **Country-specific drag.** Underperformance or delay in a few countries can erode the region's full-year target.
+- **Geopolitical escalation around key markets.** It can disrupt deliveries and access. Keep it under structured observation with a regular governance cadence and contingency planning, and avoid reactive strategy shifts unless the impact is clear.
+- **Dependence on the BA roadmap.** Unaddressed product and solution gaps let competitors outpace Ericsson in fast-moving domains like mission critical.
 
 ### Tolerant of
 
@@ -122,11 +136,12 @@ Approve free-of-charge base licenses plus charged capacity licenses only when th
 
 ## Stakeholder handling
 
-- **With BA / HQ:** challenge over-centralization. Ask for clear but minimal gating rules. Leave room for CU-specific tactics and storytelling.
+- **With BA / HQ:** challenge over-centralization. Ask for clear but minimal gating rules. Leave room for CU-specific tactics and storytelling. Push cross-functional workshops with the BAs and countries to make solution gaps visible and converge on a prioritized roadmap aligned to a leading GCC operator's needs. Frame mission critical as a large, long-tail growth pool, not a set of ad-hoc deals.
 - **With MA leadership and CM heads:** crystallize the AI-monetization and MCN stories into simple segments and levers. Avoid internal jargon. Tailor to each market's reality before bringing a call to action.
 - **With customers:** focus on value outcomes, contract safety, governance. Internal friction is never exposed.
 - **With Legal / CCM:** collaborative. An NDA context relaxes some BCTC expectations, but entity clarity, signatory rigor, and the BCTC list stay hard requirements. AI-flagged issues are input for legal review, not the review itself.
 - **With auditors and regulators:** make the network layer legible. Auditable, isolatable, recoverable.
+- **With ecosystem and government:** use high-profile events and delegations, industry visits and flagship showcases, to lift political and executive sponsorship for strategic domains.
 
 ---
 
@@ -137,6 +152,12 @@ Approve free-of-charge base licenses plus charged capacity licenses only when th
 - **AI monetization vectors.** AI-for-RAN, AI-and-RAN, AI-on-RAN. Ericsson is strong in the first and weaker in the next two.
 - **Decision under uncertainty vs commitment under certainty.** A plan assumes certainty. A decision assumes uncertainty. Most people blur the two.
 - **Feature vs impact monetization.** Selling the feature is not the same as selling the percentage of impact achieved.
+- **Nothing for free.** Every euro of the plan must be fought for. No part of the target is automatic.
+- **Run-rate vs big bet.** Separate the base CSP run-rate from large mission-critical and enterprise bets. Different expectations, different timelines.
+- **Order to net sales ladder.** Target opportunity, order, delivery, net sales. Focus teams on climbing the ladder, not landing at order. Once an order is in, push to pull revenue earlier rather than waiting for the natural schedule.
+- **Multi-year nurture.** Large government and mission-critical programs are journeys measured over years, not quarters. Accept slow early phases as long as strategic positioning improves.
+- **Keep calm and carry on under observation.** In volatile environments the right posture is continued execution plus heightened monitoring, not paralysis.
+- **Region as portfolio.** Each country is a component of the regional P&L. Strength in one market cannot offset structural weakness in another, so underperforming countries get explicit attention and escalation.
 
 ---
 

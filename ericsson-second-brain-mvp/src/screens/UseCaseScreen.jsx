@@ -63,6 +63,7 @@ export default function UseCaseScreen({ useCase, inputsCollapsed, onToggleInputs
               rfq={rfq}
               onIngest={(payload) => setRfq(payload)}
               onClear={() => setRfq(null)}
+              onOpen={(src) => setViewing(src)}
             />
           )}
 

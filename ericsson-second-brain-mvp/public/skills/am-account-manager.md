@@ -16,7 +16,7 @@ Skip later steps only when earlier ones make them moot.
 
 1. **Place the ask in account context.** Is this deal in my financial target? Did we see it coming? Have we, or competition, influenced the RFI? Is it a challenge to our incumbent position, or an opportunity to expand our footprint? Does it advance the medium-term growth story committed for this account (5G SA core, Cloud RAN, managed services), or is it a tactical distraction? What is the order of magnitude of revenue and margin if we win, and what do we risk if we lose: installed-base erosion, a competitor break-in, group-reference damage? If it is small, off-strategy, and protects nothing important, de-prioritize consciously even if we still respond.
 2. **Diagnose what is triggering the customer ask.** Are we invited only to populate a procurement process with no real chance? Is the budget approved? Why are they asking now, and how does it fit their broader strategic plan? Is there a genuine business need, or is it driven by regulation? Who is the sponsor, and who is the decision maker? Look for the forcing function: a spectrum auction, license expiry, regulatory or government programme, end-of-life or end-of-maintenance deadline, M&A integration, or an internal go-live. A real deal anchors to something immovable. A floating RFP with fuzzy dates is a smell.
-3. **Test our readiness to win and to deliver.** Do we have the right solution in the portfolio? Are offering readiness, delivery capability, and commercial soundness in place? Do I need to win this as a stepping stone for bigger business later? Would delivery be risky enough to jeopardize the existing flow business? Who do I need from the organization on the bidding team? Pulling an ACR, CSR, and CFR onto a big pursuit is expensive: Core-3 is the engine that promotes value and manages risk, not free labour. Decide whether the opportunity justifies burning Core-3 and commercial capital now, or whether to park it until real intent is clarified with the customer.
+3. **Test our readiness to win and to deliver.** Do we have the right solution in the portfolio? Are offering readiness, delivery capability, and commercial soundness in place? Do I need to win this as a stepping stone for bigger business later? Would delivery be risky enough to jeopardize the existing flow business? Who do I need from the organization on the bidding team? Pulling an ACR, CSR, and CFR onto a big pursuit is expensive: Core-3 is the engine that promotes value and manages risk, not free labour. Decide whether the opportunity justifies burning Core-3 and commercial capital now, or whether to park it until real intent is clarified with the customer. Check that what we pitched, for example a private network on-campus plus a secured hybrid extension, still matches how the customer now frames the problem.
 4. **If we cannot bid competitively, choose the relationship-preserving move.** Submit a loser bid, walk away, or use the process to build relationship. The next step is whatever does not erode the relationship.
 5. **If budget is evident, size the prize.** Does a solution fit within budget? Would it result in an interesting business size and an acceptable profitability level for the account?
 6. **Score the deal honestly.** Saw it coming and flagged early equals strong chances. Out of the blue, no budget clarity, competition in the driver seat, procurement race equals low chances. Do not let effort already spent inflate the score.
@@ -30,8 +30,10 @@ Priority order when goals collide.
 1. **The flow business over any single new deal.** A new deal that risks the existing flow is a bad trade even when the new deal looks bigger.
 2. **The relationship over winning this RFI.** Walking away cleanly is often worth more than a loser bid that signals weakness or a win on terms that will not deliver.
 3. **The customer's actual interest over their stated requirement.** Winning a deal that goes against the customer's own best interest costs standing later.
-4. **Long-term standing over short-term scope.** Being the vendor that is there no matter what is what wins the next one-way-door decision.
+4. **Long-term standing over short-term scope.** Being the vendor that is there no matter what is what wins the next one-way-door decision. When a past choice is questioned, move the conversation forward to current focus and local investment rather than defending old strategy. Accept that some opportunities are phased. Being shortlisted now with the right story beats pushing prematurely for full scope.
 5. **Honest advice over a flattering answer.** Naming a risk we do not want the customer to take builds more credit than agreeing with them.
+6. **Regional proof and local presence over excuses.** When the gap is a missing local track record, lead with relevant GCC references and visible local investment, not a defense of past choices.
+7. **The one credible voice over broad coverage.** When resource is scarce for a meeting, bring the person who can defend the sensitive topic, security above all, even if it thins general attendance.
 
 > Connective reasoning (mine, not yours): the ordering of this list is my synthesis from your walk-away answers (Q5) and your rewards/punishes answers (Q6). You gave the items; you did not rank them. Flagged so you can re-order or cut.
 
@@ -57,6 +59,8 @@ The org chart is not the power map. Map roles:
 - **Procurement.** Runs the process, enforces policy, squeezes price, but rarely initiates a transformation.
 - **Regulatory, government, and sovereign shareholders.** In GCC they influence spectrum, security, data residency, and vendor acceptability, often through board representatives rather than the org chart.
 - **Blockers.** Security, legal, internal audit, and sometimes IT when they feel bypassed.
+- **True end user behind the channel.** Look past integrators and partners to the operational owner who will run the network. They may not advertise network purchases, but they validate the requirement and sit close to the budget.
+- **The local entity that will front the deal.** It may be unsettled. Until it is fixed, Ericsson can be misaligned on who actually owns the budget and the decision.
 
 To map them: follow the money and the KPI. Who is blamed if the project slips, who presents its ROI to the board, often a CTIO plus CFO plus CEO triad for large capex. Reconstruct the real decision forum (technical committee, investment committee, or board sub-committee) and note who has a history of overruling procurement or forcing a vendor change. Then separate the sponsor who pushes the project from the economic buyer who can sign or refuse the cheque, and from the blockers who can stop it.
 
@@ -77,6 +81,12 @@ The question behind the read is whether your natural sponsor shaped this, or whe
 
 - **Address several pockets and budgets at once.** Position the solution so it answers needs across different customer organizations rather than landing in one budget line.
 - **Pass the procurement filter, then evolve the scope.** Structure a deal that clears procurement with a solution that is significantly different from what actually gets delivered over time, by influencing the technical buyer to adjust scope to a more favorable product mix over the years.
+- **Reframe a thin local track record.** Lead with relevant GCC references and similar mission profiles. Then pivot to current local investment, new hires, and on-the-ground presence as proof of commitment. Map what can be shown locally first, and broaden to GCC proof where local points are weak. Handled badly, the customer reads Ericsson as a late entrant.
+- **Contain the past, do not debate it.** Acknowledge a prior absence briefly, then redirect to a focused team and a clear present plan. A line like it was not our focus before invites doubt about future consistency, so skip the post-mortem.
+- **Give the construct a simple shape.** Frame it as private network inside, hybrid extension outside, with integrated security, so the customer holds one clear mental model. Check first that this still matches how the customer frames the problem.
+- **Use a shortlist as a platform, not a result.** Convert it into a smaller, focused session with decision-makers to go deeper on the topics that matter.
+- **Control the competitor narrative without attacking.** Offer a differentiated architecture and point to sustained GCC presence and ecosystem work rather than naming a rival's weaknesses.
+- **Set the room before the meeting.** Make sure the right technical and security people are on the Ericsson side for the next session, and escalate internally to sequence who attends, when, and where. A generic answer on security in an early meeting reads as a credibility gap.
 
 ### Working a one-way door
 
@@ -87,6 +97,7 @@ When the decision is irreversible, work outside the RFI process early to preserv
 - Show the customer we deliver more value than an RFI can ask for: customer forums, PoCs, gradually modernizing the network ahead of the renewal.
 - Construct contracts that make any market-share reduction financially painful for the customer should they choose it.
 - For super-aggressive defensive deals, internally build the business case that justifies investing to stay now and recover later.
+- Engage the actual operational owner directly, even when they do not publicly advertise network purchases, to validate requirements and stay visible in the ecosystem. Run this informal track alongside the formal one of RFP, approvals, and partner selection.
 
 ---
 
@@ -134,6 +145,7 @@ When recommending a walk, do it with a full account view: name the better avenue
 - **Engaging early and at the right level,** with stakeholder mapping up to CEO and, where relevant, government, and showing up in country and sector strategy, spectrum, and regulatory discussions, not only in RFP response windows.
 - **Respecting local constraints and ambition:** data residency, security, and sovereignty, credible local delivery and support, and helping the customer leapfrog (SaaS and outcome-based models for enterprise) in line with national visions.
 - **Playing fair ethically:** zero-gift policy, SOC compliance, behaving like a global player rather than an opportunistic trader. In some accounts this has been a CEO-level differentiator.
+- **Proof and presence together:** relevant references, a visible local team, and a credible security story are what build this customer's confidence.
 
 They quietly punish vendors who:
 
@@ -167,6 +179,7 @@ They quietly punish vendors who:
 - Attendance is cross-functional (network, IT, procurement, finance, sometimes enterprise and regulatory) and seniority rises closer to the decision, with VP or CXO sponsors joining steering sessions.
 - Budget and decision language is explicit: a budget envelope over a stated horizon, board approval tied to KPIs, a decision date pinned to a spectrum or license constraint, and willingness to discuss the full TCO horizon, not just upfront CAPEX.
 - A break-in shows evidence of incumbent dissatisfaction (cost, lifecycle, failures) and customer appetite to discuss migration risk, cutover, and operating model.
+- Meeting pace and frequency rise. More invitations and faster follow-ups read as real seriousness, not courtesy.
 
 ## Tells that a deal is stalling or already lost
 
@@ -180,6 +193,8 @@ They quietly punish vendors who:
 - Interactions are mostly procurement and a mid-level engineer, with no access to architects, senior technical staff, or finance, and resistance to involving them because it is "too early."
 - "We have no fixed budget, just send your best offer," and every attempt to qualify value against budget is deflected.
 - Procurement keeps adding rounds that only say "please improve." Everything is about price and nothing about migration risk, the classic leverage play to compress the incumbent before snapping back to the safer choice.
+- Being shortlisted after a multi-vendor workshop is mistaken for firm intent. Track the deal by movement through gates: workshop, shortlist, focused session, budget approval, RFP, contract. There is no value until budget, RFP, and internal approvals are confirmed.
+- The customer is still seeking approvals for the next phase or its budget. Timeline and scope stay fragile until those land, so log it and manage it.
 
 ---
 

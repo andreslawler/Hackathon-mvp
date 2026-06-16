@@ -15,8 +15,8 @@ export default function App() {
   const [tab, setTab] = useState('home');
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [keyTick, setKeyTick] = useState(0); // bump to re-read getApiKey()
-  // Lifted above UseCaseScreen (which remounts per tab) so the collapse state persists as the
-  // user moves between UC1, UC2, and UC3 within a session.
+  // Shared across all three use-case screens (which now stay mounted) so the collapse state is
+  // consistent and persists as the user moves between UC1, UC2, and UC3 within a session.
   const [inputsCollapsed, setInputsCollapsed] = useState(false);
 
   useEffect(() => {
@@ -56,14 +56,17 @@ export default function App() {
 
       <main className="app-main">
         {tab === 'home' && <Home onNavigate={setTab} />}
-        {tab !== 'home' && (
-          <UseCaseScreen
-            key={tab}
-            useCase={tab}
-            inputsCollapsed={inputsCollapsed}
-            onToggleInputs={() => setInputsCollapsed((c) => !c)}
-          />
-        )}
+        {/* Every use-case screen stays mounted and is shown or hidden by tab. A generated output,
+            its assessment, and any uploaded RFQ therefore survive navigation between tabs. */}
+        {TABS.filter((t) => t.id !== 'home').map((t) => (
+          <div key={t.id} style={{ display: tab === t.id ? 'block' : 'none' }}>
+            <UseCaseScreen
+              useCase={t.id}
+              inputsCollapsed={inputsCollapsed}
+              onToggleInputs={() => setInputsCollapsed((c) => !c)}
+            />
+          </div>
+        ))}
       </main>
 
       {showKeyModal && (
