@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { loadFile } from '../lib/files.js';
 
 // `source` is either a string path to a file under /public (fetched and rendered as markdown),
@@ -50,7 +51,7 @@ export default function FileViewer({ source, onClose }) {
             (isInline ? (
               <pre className="inline-doc">{text}</pre>
             ) : (
-              <ReactMarkdown>{text}</ReactMarkdown>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
             ))}
         </div>
       </div>

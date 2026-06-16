@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import InputsPanel from '../components/InputsPanel.jsx';
 import DualOutput from '../components/DualOutput.jsx';
 import FileViewer from '../components/FileViewer.jsx';
@@ -55,7 +57,9 @@ export default function UseCaseScreen({ useCase, inputsCollapsed, onToggleInputs
         <div className="uc-run-area">
           <div className="scenario-box">
             <div className="label">Scenario</div>
-            <div className="text">{SCENARIOS[useCase]}</div>
+            <div className="text">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{SCENARIOS[useCase]}</ReactMarkdown>
+            </div>
           </div>
 
           {isUc1 && (

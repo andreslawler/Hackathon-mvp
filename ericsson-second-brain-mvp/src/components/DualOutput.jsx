@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { streamCompletion, getApiKey } from '../lib/api.js';
 import { buildPrompt, buildAssessmentPrompt, buildOfferDataPrompt, citationIndex } from '../lib/prompts.js';
 import { SCENARIOS } from '../lib/scenarios.js';
@@ -273,7 +274,7 @@ function Column({
           ) : cited ? (
             <CitedMarkdown md={cite.md} idx={idx} />
           ) : (
-            <ReactMarkdown>{text}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
           )}
         </div>
       )}
@@ -322,7 +323,7 @@ function CitedMarkdown({ md, idx }) {
   };
 
   return (
-    <ReactMarkdown urlTransform={citeUrlTransform} components={components}>
+    <ReactMarkdown remarkPlugins={[remarkGfm]} urlTransform={citeUrlTransform} components={components}>
       {md}
     </ReactMarkdown>
   );

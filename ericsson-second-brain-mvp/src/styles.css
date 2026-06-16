@@ -358,6 +358,45 @@ button {
   color: var(--ink);
   font-weight: 400;
 }
+.scenario-box .text > :first-child {
+  margin-top: 0;
+}
+.scenario-box .text > :last-child {
+  margin-bottom: 0;
+}
+.scenario-box .text p {
+  margin: 0 0 12px;
+}
+.scenario-box .text table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 14px 0;
+  font-family: var(--sans);
+  font-size: 13px;
+  line-height: 1.45;
+}
+.scenario-box .text th,
+.scenario-box .text td {
+  border: 1px solid var(--rule);
+  padding: 7px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+.scenario-box .text th {
+  background: var(--rule-soft);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+}
+.scenario-box .text td:first-child {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink);
+  width: 22%;
+}
 
 .run-bar {
   display: flex;

@@ -77,6 +77,7 @@ export const MANIFEST = {
       ],
       knowledgebase: [
         { path: '/knowledgebase/contract-artifacts/ericsson_bctc_catalogue.md', label: 'BCTC catalogue (wanted positions)' },
+        { path: '/knowledgebase/contract-artifacts/customer-bctc-deviations.md', label: 'Customer BCTC deviations' },
         { path: '/knowledgebase/customer-intelligence/customer-contract-history.md', label: 'Customer contract history' },
         { path: '/knowledgebase/customer-intelligence/customer-public-financials.md', label: 'Customer public financials' },
         { path: '/knowledgebase/customer-intelligence/customer-vendor-landscape.md', label: 'Vendor landscape' },

@@ -5,5 +5,18 @@ export const SCENARIOS = {
 
   uc2: `A leading GCC operator has requested a 10% list-price reduction on a roughly $6M Integrated Core Solution deal for its Mission Critical Networks segment, citing Nokia competitive pressure. They want to close before Q4. How should we respond?`,
 
-  uc3: `The customer has returned the framework agreement with deviations on the following Business-Critical Terms: liability cap proposed at 50% of contract value (vs. Ericsson wanted 100%); indexation cap proposed at 2% (vs. Ericsson wanted uncapped or 5%); 3PP cost pass-through proposed as fixed at signing (vs. Ericsson wanted full pass-through); termination for convenience proposed with 60-day notice and no cancellation fees (vs. Ericsson wanted 180-day notice with cancellation structure); IP indemnity scope proposed to include customer-supplied specifications (vs. Ericsson wanted standard carve-outs). Assess each deviation against Ericsson's wanted position, identify the priority deviations to push back on hardest, and recommend a negotiation strategy with suggested redline language for the top three.`,
+  uc3: `A leading GCC operator has returned the multi-year framework agreement for the Integrated Core Solution. It has deviated from Ericsson's wanted position on the Business-Critical Terms below.
+
+| BCTC | What the customer returned | Ericsson wanted position |
+|------|----------------------------|--------------------------|
+| BCTC-04 Relief from performance | No relief or extension of time for customer failures or inaccurate assumptions, no reimbursement of customer-caused costs. | Relief, extensions of time and cost recovery for customer failures and inaccurate assumptions. |
+| BCTC-12 Assignability and transfer | No express Ericsson right to assign or factor receivables, and assignment to third parties is restricted. | Right to assign or factor receivables, customer consent not unreasonably withheld, and no customer assignment without Ericsson consent. |
+| BCTC-13 Set-off and late payment interest | Customer may set off amounts it claims against Ericsson invoices, and Ericsson has no right to late payment interest. | No customer set-off, and a right to charge late payment interest. |
+| BCTC-15 Termination and suspension rights | No unilateral Ericsson right to terminate on a customer change of control, only a good faith discussion. | Unilateral right to terminate on the customer's change of control. |
+| BCTC-17 Limitation of liability | Single cap does not clearly cover service credits and penalties, and leaves the third party IPR indemnity uncapped. Only a general exclusion of indirect loss, without the enumerated categories. | One cap across all liabilities including indemnities, LDs, service credits and penalties, plus the full list of excluded indirect and consequential loss. |
+| BCTC-18 Delays | LDs not stated as the sole and exclusive financial remedy for delay. | LDs as the sole financial remedy, inside the cap, with no double recovery. |
+| BCTC-21 IPR indemnity | Indemnity not capped by the liability cap, not limited to court awarded damages, weak Ericsson control of defence and settlement, no clear modify, replace or refund remedy, combinations not excluded. | Indemnity confined to the standard carve-outs and capped by the general cap, as the exclusive IPR remedy. |
+| BCTC-22 Data access, ownership and use rights | Customer will not accept sharing network data, denying Ericsson the access and use rights needed to deliver and support the core. | Rights to access, store, use, process and transfer the data to perform the agreement, with secure access through CAS or MSDP. |
+
+Assess each deviation against Ericsson's wanted position, assign a severity, identify the priority deviations to push back on hardest, and recommend a negotiation strategy with suggested redline language for the top three.`,
 };
