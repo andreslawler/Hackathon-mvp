@@ -1103,3 +1103,66 @@ button {
   color: var(--ink);
   margin: 0;
 }
+
+/* ─── UC1 send-ready document downloads (Second Brain) ─────── */
+
+.offer-docs {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule);
+}
+.offer-docs.loading {
+  display: flex;
+  align-items: center;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-mute);
+}
+.offer-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-brain);
+  margin-bottom: 10px;
+}
+.offer-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.offer-btn {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--bg);
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 7px 12px;
+  color: var(--ink-soft);
+  transition: all 0.15s ease;
+}
+.offer-btn:hover:not(:disabled) {
+  border-color: var(--c-brain);
+  color: var(--ink);
+}
+.offer-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+.offer-btn.doc {
+  border-left: 3px solid var(--c-brain);
+}
+.offer-note {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-mute);
+  line-height: 1.5;
+  margin-top: 9px;
+}
+.offer-err {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  color: var(--c-warn);
+  margin-top: 8px;
+}

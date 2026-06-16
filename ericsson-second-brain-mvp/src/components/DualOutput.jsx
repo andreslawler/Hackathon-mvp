@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { streamCompletion, getApiKey } from '../lib/api.js';
-import { buildPrompt, buildAssessmentPrompt, citationIndex } from '../lib/prompts.js';
+import { buildPrompt, buildAssessmentPrompt, buildOfferDataPrompt, citationIndex } from '../lib/prompts.js';
 import { SCENARIOS } from '../lib/scenarios.js';
 import {
   preprocessCitations,
@@ -9,6 +9,12 @@ import {
   parseAssessmentJson,
   citeUrlTransform,
 } from '../lib/citations.js';
+import {
+  downloadSolutionDescription,
+  downloadPricingSchedule,
+  downloadCompliance,
+  downloadMarkdownFallback,
+} from '../lib/offerDocs.js';
 
 export default function DualOutput({ useCase, scenario, maxTokens = 1500, rfqOverride = null }) {
   const [genericText, setGenericText] = useState('');
@@ -22,6 +28,10 @@ export default function DualOutput({ useCase, scenario, maxTokens = 1500, rfqOve
   // Assessment (Features 2 and 3). Additive: never blocks the two outputs.
   const [assessment, setAssessment] = useState(null);
   const [assessmentState, setAssessmentState] = useState('idle'); // idle | loading | done | unavailable
+
+  // Offer documents (UC1 only). Additive: never blocks the outputs.
+  const [offerData, setOfferData] = useState(null);
+  const [offerState, setOfferState] = useState('idle'); // idle | loading | done | unavailable
 
   const userMessage = scenario || SCENARIOS[useCase];
 
@@ -43,6 +53,8 @@ export default function DualOutput({ useCase, scenario, maxTokens = 1500, rfqOve
     setBrainState('loading');
     setAssessment(null);
     setAssessmentState('idle');
+    setOfferData(null);
+    setOfferState('idle');
 
     let genericFull = '';
     let brainFull = '';
@@ -122,6 +134,34 @@ export default function DualOutput({ useCase, scenario, maxTokens = 1500, rfqOve
         }
       })();
     }
+
+    // Offer documents from the Second Brain output (UC1 only). Fire and forget.
+    if (useCase === 'uc1' && brainFull.trim()) {
+      setOfferState('loading');
+      (async () => {
+        try {
+          const { system, userMessage: oMsg } = await buildOfferDataPrompt(stripCiteMarkers(brainFull));
+          let raw = '';
+          await streamCompletion({
+            system,
+            userMessage: oMsg,
+            maxTokens: 2200,
+            onChunk: (t) => {
+              raw += t;
+            },
+          });
+          const parsed = parseAssessmentJson(raw);
+          if (parsed && (parsed.requirementSpec || parsed.pricing || parsed.compliance)) {
+            setOfferData(parsed);
+            setOfferState('done');
+          } else {
+            setOfferState('unavailable');
+          }
+        } catch {
+          setOfferState('unavailable');
+        }
+      })();
+    }
   };
 
   return (
@@ -159,6 +199,8 @@ export default function DualOutput({ useCase, scenario, maxTokens = 1500, rfqOve
           useCase={useCase}
           scorecard={assessment && assessment.rubric ? assessment.rubric.secondBrain : null}
           assessmentState={assessmentState}
+          offerState={offerState}
+          offerData={offerData}
         />
       </div>
     </>
@@ -177,6 +219,8 @@ function Column({
   scorecard,
   assessmentState,
   cdCommentary,
+  offerState,
+  offerData,
 }) {
   return (
     <div className={`output-col ${variant}`}>
@@ -215,6 +259,10 @@ function Column({
 
       {variant === 'generic' && assessmentState !== 'idle' && (
         <CdCommentary text={cdCommentary} state={assessmentState} />
+      )}
+
+      {variant === 'brain' && offerState !== 'idle' && (
+        <OfferDocs state={offerState} data={offerData} brainText={text} />
       )}
     </div>
   );
@@ -307,6 +355,81 @@ function CdCommentary({ text, state }) {
     <div className="cd-commentary">
       <div className="cd-label">What a Commercial Director would say</div>
       <p>{text}</p>
+    </div>
+  );
+}
+
+// Send-ready document downloads (Second Brain, UC1). Each file is generated on click with a
+// lazy-loaded library. A failure surfaces an inline message and the raw-output fallback, so it
+// can never take down the column.
+function OfferDocs({ state, data, brainText }) {
+  const [busy, setBusy] = useState('');
+  const [err, setErr] = useState('');
+
+  if (state === 'loading') {
+    return (
+      <div className="offer-docs loading">
+        <span className="spinner" /> Preparing send-ready documents…
+      </div>
+    );
+  }
+
+  if (state === 'unavailable' || !data) {
+    return (
+      <div className="offer-docs">
+        <div className="offer-label">Send-ready documents</div>
+        <p className="offer-note">Structured generation unavailable. You can still download the raw output.</p>
+        <div className="offer-btns">
+          <button className="offer-btn" onClick={() => downloadMarkdownFallback(stripCiteMarkers(brainText))}>
+            Second Brain output (.md)
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const gen = async (key, fn) => {
+    setErr('');
+    setBusy(key);
+    try {
+      await fn();
+    } catch {
+      setErr('Could not generate that file. Use the raw output below.');
+    } finally {
+      setBusy('');
+    }
+  };
+
+  return (
+    <div className="offer-docs">
+      <div className="offer-label">Send-ready documents · indicative draft</div>
+      <div className="offer-btns">
+        <button
+          className="offer-btn doc"
+          disabled={!!busy}
+          onClick={() => gen('sd', () => downloadSolutionDescription(data))}
+        >
+          {busy === 'sd' ? 'Generating…' : 'Solution Description (.docx)'}
+        </button>
+        <button
+          className="offer-btn"
+          disabled={!!busy}
+          onClick={() => gen('pr', () => downloadPricingSchedule(data.pricing))}
+        >
+          {busy === 'pr' ? 'Generating…' : 'Pricing schedule (.xlsx)'}
+        </button>
+        <button
+          className="offer-btn"
+          disabled={!!busy}
+          onClick={() => gen('co', () => downloadCompliance(data.compliance))}
+        >
+          {busy === 'co' ? 'Generating…' : 'Statement of Compliance (.xlsx)'}
+        </button>
+      </div>
+      {err && <p className="offer-err">{err}</p>}
+      <p className="offer-note">
+        Solution Description fills the real Ericsson template. Indicative draft for review, not a binding offer.
+      </p>
     </div>
   );
 }

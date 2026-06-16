@@ -338,3 +338,37 @@ Score both against the rubric and write the CD commentary on the generic output.
 
   return { system, userMessage };
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Offer-data call (UC1 only). Turns the Second Brain output into structured data for the
+// send-ready document downloads: the Solution Description fields, the pricing rows, and the
+// compliance rows. Runs via streamCompletion (non-streaming), parsed defensively. Additive:
+// never blocks the rendered outputs.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export async function buildOfferDataPrompt(brainText) {
+  const system = `You are turning an Ericsson budgetary quotation into structured data for document generation. You are given the Second Brain output for a UC1 Integrated Core Solution budgetary quote. Extract and structure it.
+
+Return ONLY a single valid JSON object. No preamble, no explanation, no markdown code fences. The exact shape is:
+{
+  "projectName": "<short project name for a leading GCC operator, no real customer name>",
+  "requirementSpec": "<2 to 4 sentences summarising the customer requirement, plain prose for a Word paragraph>",
+  "pricing": [ {"group": "", "item": "", "component": "", "quantityOrCapacity": "", "oneTime": "", "recurring": ""} ],
+  "compliance": [ {"requirement": "", "status": "FULL", "solutionElement": "", "note": ""} ]
+}
+
+Rules:
+- Never name a real customer. Always use "a leading GCC operator".
+- pricing: build from the pricing schedule in the output. Keep values indicative, ranges are fine. 6 to 14 rows.
+- compliance: one row per stated requirement. status is one of FULL, PARTIAL, OPTIONAL, NON-COMPLIANT. 5 to 12 rows.
+- requirementSpec: plain text, no markdown, suitable for a Word document paragraph.
+- No em dashes. No semicolons.`;
+
+  const userMessage = `Second Brain UC1 output:
+
+${brainText}
+
+Return only the JSON object.`;
+
+  return { system, userMessage };
+}
