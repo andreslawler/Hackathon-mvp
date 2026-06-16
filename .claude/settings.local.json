@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"C:\\\\Users\\\\eandlaw\\\\second_brain\\\\ericsson-second-brain-mvp\\\\public\\\\knowledgebase\\\\competitive-intelligence\")",
+      "PowerShell(\"created\")"
+    ]
+  }
+}
