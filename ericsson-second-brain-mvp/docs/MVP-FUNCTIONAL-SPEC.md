@@ -1,6 +1,6 @@
 # Ericsson's Second Brain — MVP Functional Specification
 
-**Status:** v2.0 (updated to reflect the implemented MVP)
+**Status:** v2.1 (synced to the implemented MVP)
 **Author:** Andres Lawler
 **Purpose:** Hackathon MVP for demonstrating the Second Brain concept to a senior judging panel.
 **Audience:** Senior strategy and commercial leadership.
@@ -149,11 +149,11 @@ A single React app with a top navigation bar. Persistent elements:
 
 ### 4.2 Home screen
 
-Frames the thesis, presents the three use cases as cards, and links into each.
+Frames the thesis, presents the three use cases as cards, and links into each. Below the thesis sit two presentation sections built for the panel: a **business case** slide (the cost of inaction, the supporting research, the root cause and the Second Brain bridge, and the effort freed per month) and an **architecture diagram** slide (the role skills and the knowledgebase feeding one model to produce the three use case outputs). Each section has a button that toggles it to a standalone full-screen slide, with Escape to exit, so the presenter can drive them as slides.
 
 ### 4.3 Use case screen layout
 
-The three use case screens share a layout: a collapsible inputs panel on the left, and a run area on the right holding the scenario box, the RFQ drop-zone (UC1 only), the Run control, and the dual output.
+The three use case screens share a layout: a collapsible inputs panel on the left, and a run area on the right holding the scenario box, the RFQ drop-zone (UC1 only), the Run control, and the dual output. The three screens stay mounted, so a generated output, its assessment, and any uploaded RFQ persist when the presenter navigates between tabs and back within a session. The inputs-panel collapse state is shared across all three.
 
 ### 4.4 Inputs panel
 
@@ -169,9 +169,10 @@ Two equal columns. Left: "Generic LLM + public RAG" in the muted accent. Right: 
 
 ### 4.7 The legibility layer (what makes the delta defensible)
 
-Three features, all computed live from the real outputs on each run. No hardcoded verdicts.
+Four features, all computed live from the real outputs on each run. No hardcoded verdicts.
 
 - **Citation pills (Second Brain output only).** As it writes, the Second Brain model wraps grounded claims in inline markers naming the source file. The app renders these as subtle pills: green for a claim drawn from a role skill (reasoning), deep blue for a claim drawn from a knowledgebase artifact (data). General prose stays unmarked. A cited filename that is not actually loaded renders muted, so a bluffed citation looks weaker rather than passing silently. The generic output never gets pills.
+- **Grounding density.** A per-run count of the validated citation pills in each answer, shown as a slim line on each column, for example "11 claims grounded in named sources," with an optional reasoning-versus-data split. The generic side always reads zero, by construction. The count comes from the same parsed pills, excludes any unvalidated citation so a bluffed one cannot inflate it, and shows an unavailable state rather than a wrong number if parsing ever fails. It is a claim about this answer's traceability, not about corpus size.
 - **Rubric scorecard.** A fixed six-item commercial rubric scores both outputs, shown as a compact card above each column. Green pass, muted dash for fail (not red, this is a comparison, not an error state). The generic side typically shows several fails. Per-item justification appears on hover.
 - **Commercial Director commentary.** A short review in the CD's voice, rendered as a callout under the generic output, naming the specific institutional miss and the concrete move.
 
@@ -195,7 +196,8 @@ On UC1 the Second Brain side offers downloads of customer-ready documents (Solut
 - **Build tool:** Vite 5, with a dev-server proxy (`/mimir`) to the internal endpoint.
 - **HTTP:** native `fetch`.
 - **Markdown:** `react-markdown` (v9).
-- **Document generation (UC1):** `docxtemplater` and `pizzip` (Word from the real ICS template), and `xlsx` / SheetJS (spreadsheets). These are loaded dynamically on use, so app startup is unaffected and any failure is caught.
+- **RFQ ingestion (UC1):** `mammoth` extracts text from an uploaded `.docx` in the browser.
+- **Document generation (UC1):** `docxtemplater` and `pizzip` (Word from the real ICS template), and `xlsx` / SheetJS (spreadsheets). All of these, and mammoth, are loaded dynamically on use, so app startup is unaffected and any failure is caught.
 - **No backend.** Calls go from the browser through the local Vite proxy to the internal endpoint. The bearer token lives in `sessionStorage` only.
 
 ### 5.2 Streaming
@@ -220,7 +222,7 @@ Per-call `maxTokens` is set per use case (UC1 and UC3 higher for their multi-sec
 
 ### 5.6 File loading and parsing
 
-`src/lib/files.js` fetches `/public/...` files fresh on each run (no caching). `src/lib/citations.js` holds the streaming-tolerant citation parser, the marker-stripping fallback, the `cite://` URL pass-through for react-markdown, and the defensive assessment-JSON parser. `src/lib/offerDocs.js` generates the UC1 downloads.
+`src/lib/files.js` fetches `/public/...` files fresh on each run (no caching). `src/lib/citations.js` holds the streaming-tolerant citation parser, the marker-stripping fallback, the `cite://` URL pass-through for react-markdown, the grounding-count helper behind the density indicator, and the defensive assessment-JSON parser. `src/lib/docx.js` extracts text from an uploaded RFQ, and `src/lib/offerDocs.js` generates the UC1 downloads.
 
 ### 5.7 Error handling and demo safety
 
@@ -284,7 +286,7 @@ A single shared pool organised by knowledge domain, not by use case. Each use ca
     └── illustrative_won_loss_debrief.md
 ```
 
-All knowledge content is anonymised: the customer is always "a leading GCC operator," never named. Several files were sourced through the internal Glean assistant (Bedrock) and pasted in, so this repository must stay private. The two still-to-source items are `salesforce-deal-history.md` and the UC3 redline that finalises the Contracting scenario.
+All knowledge content is anonymised: the customer is always "a leading GCC operator," never named. Several files were sourced through the internal Glean assistant (Bedrock) and pasted in, so this repository must stay private. Still pending real source data: `salesforce-deal-history.md` carries ICS-aligned illustrative content pending a real Salesforce extract, and the UC3 redline that finalises the Contracting scenario is still to come.
 
 ### 6.3 Generic RAG (`/public/generic-rag/`)
 
@@ -302,7 +304,7 @@ The real Ericsson document templates the UC1 send-ready downloads fill (for exam
 
 ### 6.5 Source modules (`/src/`)
 
-`App.jsx` (shell, nav), `screens/Home.jsx`, `screens/UseCaseScreen.jsx`, `components/` (`InputsPanel`, `DualOutput`, `FileViewer`, `ApiKeyModal`, `RfqDropZone`), and `lib/` (`api.js`, `prompts.js`, `citations.js`, `files.js`, `scenarios.js`, `offerDocs.js`), with `styles.css`.
+`App.jsx` (shell, nav), `screens/Home.jsx`, `screens/UseCaseScreen.jsx`, `components/` (`InputsPanel`, `DualOutput`, `FileViewer`, `ApiKeyModal`, `RfqDropZone`, `HomeSlides`), and `lib/` (`api.js`, `prompts.js`, `citations.js`, `files.js`, `scenarios.js`, `docx.js`, `offerDocs.js`), with `styles.css`.
 
 ---
 
@@ -314,7 +316,7 @@ Recommended 15-minute panel demo:
 2. **UC2 first:** the negotiation scenario lands hardest and fastest. Show the inputs panel, click a skill file, run the scenario, walk both outputs, then point to the scorecard, the citation pills, and the Commercial Director commentary.
 3. **UC1:** the quotation. The productivity case. Show the send-ready document downloads, and optionally drop in a real RFQ.
 4. **UC3 Contracting:** the deviation assessment. The legal and contract case, and proof the same architecture scales to a specialist domain.
-5. **Close:** return to Home and frame the asks.
+5. **Close:** return to Home, take the business case and architecture slides full-screen, and frame the asks.
 
 Each use case is 3 to 4 minutes.
 
@@ -326,9 +328,10 @@ The single live dependency is the Mimir token. Grab a fresh one right before the
 
 ### In scope (implemented)
 
-- The two-call generic-versus-Second-Brain comparison, file-based knowledge loading, the inspectable inputs panel, and the fixed scenarios.
-- The legibility layer: citation pills, rubric scorecard, Commercial Director commentary.
+- The two-call generic-versus-Second-Brain comparison, file-based knowledge loading, the inspectable inputs panel, the fixed scenarios, and output that persists across tab navigation.
+- The legibility layer: citation pills, the grounding-density indicator, the rubric scorecard, and the Commercial Director commentary.
 - UC1 send-ready document generation from the real templates, and the RFQ drop-zone override.
+- The Home presentation slides: the business case and the architecture diagram, each usable full-screen.
 
 ### Out of scope (next-phase)
 
@@ -357,7 +360,7 @@ Everything else is secondary.
 
 This specification is the source of truth for the MVP. Code, content, and design decisions refer back to it.
 
-Resolved since v1.0: all seven skills enriched and sourced, the knowledgebase populated and anonymised, the BCTC catalogue loaded, the endpoint moved to Mimir GPT-5.4, the use cases reframed around the Integrated Core Solution, and the legibility and document-generation layers built.
+Resolved since v1.0: all seven skills enriched and sourced, the knowledgebase populated and anonymised, the BCTC catalogue loaded, the endpoint moved to Mimir GPT-5.4, the use cases reframed around the Integrated Core Solution, the legibility layer built (citation pills, grounding density, rubric scorecard, CD commentary), UC1 document generation and the RFQ drop-zone built, output persistence across tabs added, and the Home business case and architecture slides added.
 
-Open items: finalise the UC3 Contracting scenario from the real customer deviations, source `salesforce-deal-history.md`, and decide whether to enable streaming for the demo.
+Open items: finalise the UC3 Contracting scenario from the real customer deviations against the 28-term BCTC catalogue, replace the illustrative `salesforce-deal-history.md` with a real Salesforce extract, and decide whether to enable streaming for the demo.
 ```
