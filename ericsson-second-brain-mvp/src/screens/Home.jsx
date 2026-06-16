@@ -1,3 +1,5 @@
+import { BusinessCaseSlide, BrainDiagramSlide } from '../components/HomeSlides.jsx';
+
 export default function Home({ onNavigate }) {
   return (
     <>
@@ -49,6 +51,9 @@ export default function Home({ onNavigate }) {
           arrive at the AI-first future with an edge. The ones that do not arrive as a commodity.
         </p>
       </div>
+
+      <BusinessCaseSlide />
+      <BrainDiagramSlide />
     </>
   );
 }

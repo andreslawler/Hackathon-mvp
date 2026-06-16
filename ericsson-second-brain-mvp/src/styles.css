@@ -11,6 +11,7 @@
   --c-deep: #1e4a6d;
   --c-warm: #c98a3c;
   --c-warn: #b85c1f;
+  --c-risk: #a63325;
   --serif: 'Fraunces', Georgia, serif;
   --sans: 'IBM Plex Sans', -apple-system, sans-serif;
   --mono: 'JetBrains Mono', 'SF Mono', monospace;
@@ -1189,4 +1190,297 @@ button {
 .grounding .g-split {
   color: var(--ink-mute);
   font-size: 10px;
+}
+
+/* ─── Home presentation slides (business case, architecture) ─ */
+
+.slide {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid var(--rule);
+  padding: 30px 32px 34px;
+  margin-top: 36px;
+}
+.slide-full {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  margin: 0;
+  border: none;
+  overflow: auto;
+  padding: 46px 54px 54px;
+}
+.slide-full-btn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  font-family: var(--mono);
+  font-size: 11px;
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  padding: 6px 12px;
+  color: var(--ink-soft);
+  transition: all 0.15s ease;
+}
+.slide-full-btn:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.slide-head {
+  margin-bottom: 22px;
+}
+.slide-kicker {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  margin-bottom: 6px;
+}
+.slide-title {
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.slide-full .slide-head,
+.slide-full .bc-grid,
+.slide-full .bc-phases {
+  max-width: 1150px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Business case */
+.bc-region + .bc-region {
+  margin-top: 26px;
+  padding-top: 24px;
+  border-top: 0.5px solid var(--rule);
+}
+.bc-headline {
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+.slide-full .bc-headline {
+  font-size: 40px;
+}
+.bc-lead {
+  max-width: 760px;
+  margin-top: 16px;
+  padding-left: 14px;
+  border-left: 2px solid var(--c-risk);
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* Region 2 evidence strip */
+.bc-evidence {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+}
+@media (max-width: 760px) {
+  .bc-evidence {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+.bc-cell {
+  padding: 0 22px;
+}
+.bc-cell:first-child {
+  padding-left: 0;
+}
+.bc-cell:last-child {
+  padding-right: 0;
+}
+.bc-cell + .bc-cell {
+  border-left: 0.5px solid var(--rule);
+}
+@media (max-width: 760px) {
+  .bc-cell {
+    padding: 0;
+  }
+  .bc-cell + .bc-cell {
+    border-left: none;
+  }
+}
+.bc-kicker {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-generic);
+}
+.bc-fig {
+  font-family: var(--serif);
+  font-size: 42px;
+  font-weight: 500;
+  line-height: 1.05;
+  color: var(--c-risk);
+  margin: 8px 0;
+}
+.bc-desc {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--c-generic);
+}
+
+/* Region 3 root cause and bridge */
+.bc-bridge {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+@media (max-width: 760px) {
+  .bc-bridge {
+    grid-template-columns: 1fr;
+  }
+}
+.bc-block {
+  padding-left: 16px;
+}
+.bc-block-risk {
+  border-left: 2px solid var(--c-risk);
+}
+.bc-block-brain {
+  border-left: 2px solid var(--c-brain);
+}
+.bc-block-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.bc-block-risk .bc-block-label {
+  color: var(--c-risk);
+}
+.bc-block-brain .bc-block-label {
+  color: var(--c-brain);
+}
+.bc-block-body {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink-soft);
+}
+
+/* Region 4 effort return */
+.bc-return-kicker {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--c-brain);
+  margin-bottom: 14px;
+}
+.bc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.bc-table th {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-mute);
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 0.5px solid var(--rule);
+}
+.bc-table th:not(:first-child),
+.bc-table td:not(:first-child) {
+  text-align: right;
+}
+.bc-table td {
+  padding: 9px 8px;
+  border-bottom: 0.5px solid var(--rule-soft);
+  color: var(--ink);
+}
+.bc-table td:first-child {
+  font-weight: 500;
+}
+.bc-table td.bc-num {
+  font-family: var(--mono);
+  color: var(--c-deep);
+}
+.bc-table td.bc-eur {
+  font-family: var(--mono);
+  color: var(--c-brain);
+}
+.bc-return-footer {
+  margin-top: 14px;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--c-generic);
+}
+
+/* Architecture diagram */
+.brain-diagram {
+  max-width: 880px;
+  margin: 0 auto;
+}
+.slide-full .brain-diagram {
+  max-width: min(1150px, 94vw);
+}
+.brain-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  font-family: var(--sans);
+}
+.bd-node {
+  font-size: 12.5px;
+  font-weight: 500;
+}
+.bd-colcap {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+.bd-brainlabel {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  fill: var(--ink);
+  fill-opacity: 0.45;
+}
+.bd-brainmodel {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  fill: var(--ink);
+  fill-opacity: 0.4;
+}
+.bd-uctag {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+}
+.bd-ucout {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 12px;
+  fill: var(--ink-soft);
+}
+.bd-caption {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 15px;
+  fill: var(--ink-soft);
 }
